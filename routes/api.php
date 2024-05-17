@@ -44,4 +44,23 @@ Route::get('ulasan', 'App\Http\Controllers\UlasanController@index');
 
 Route::get('jadwal', 'App\Http\Controllers\JadwalController@index');
 Route::post('jadwal', 'App\Http\Controllers\JadwalController@store');
+Route::put('jadwal/{jadwal}', 'App\Http\Controllers\JadwalController@update');
+Route::delete('jadwal/{jadwal}', 'App\Http\Controllers\JadwalController@destroy');
+
+Route::get('tanggalLibur', 'App\Http\Controllers\TanggalLiburController@index');
+Route::post('tanggalLibur', 'App\Http\Controllers\TanggalLiburController@store');
+Route::put('tanggalLibur/{tanggalLibur}', 'App\Http\Controllers\TanggalLiburController@update');
+Route::delete('tanggalLibur/{tanggalLibur}', 'App\Http\Controllers\TanggalLiburController@destroy');
+
+Route::get('paket', 'App\Http\Controllers\PaketController@index');
+Route::post('paket', 'App\Http\Controllers\PaketController@store');
+Route::put('paket/{paket}', 'App\Http\Controllers\PaketController@update');
+Route::delete('paket/{paket}', 'App\Http\Controllers\PaketController@destroy');
+});
+
+
+Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
+    Route::get('pengguna', 'App\Http\Controllers\PenggunaController@index');
+    
+    Route::post('/filter', 'App\Http\Controllers\FilterController@filter');
 });

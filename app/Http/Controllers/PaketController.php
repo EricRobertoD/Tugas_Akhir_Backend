@@ -90,7 +90,7 @@ class PaketController extends Controller
         ], 200);
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
         $paket = Paket::find($id);
     

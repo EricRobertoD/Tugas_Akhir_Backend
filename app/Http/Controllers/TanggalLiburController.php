@@ -65,7 +65,7 @@ class TanggalLiburController extends Controller
             ], 404);
         }
         $validator = Validator::make($request->all(), [
-            'tanggal_mulai' => 'required',
+            'tanggal_awal' => 'required',
             'tanggal_akhir' => 'required',
         ]);
     
@@ -86,7 +86,7 @@ class TanggalLiburController extends Controller
         ], 200);
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
         $libur = TanggalLibur::find($id);
     

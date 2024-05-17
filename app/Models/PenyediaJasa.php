@@ -22,8 +22,8 @@ class PenyediaJasa extends Authenticatable
         'nomor_whatsapp_penyedia',
         'alamat_penyedia',
         'nama_role',
-        'gambar_penyedia'
-
+        'gambar_penyedia',
+        'deskripsi_penyedia',
     ];
 
     protected $hidden = [

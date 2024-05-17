@@ -101,7 +101,7 @@ class JadwalController extends Controller
         ], 200);
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
         $jadwal = Jadwal::find($id);
 
