@@ -18,12 +18,12 @@ class TransaksiController extends Controller
     }
 
     $id_pengguna = $user->id_pengguna;
-    $transaksi = Transaksi::where('id_pengguna', $id_pengguna)->get();
+    $transaksi = Transaksi::where('id_pengguna', $id_pengguna)->with('DetailTransaksi')->with('Pengguna')->with('DetailTransaksi.Paket')->with('DetailTransaksi.Paket.PenyediaJasa')->get();
 
     return response()->json([
         'status' => 'success',
         'message' => 'Transaksi retrieved successfully',
-        'data' => $id_pengguna,
+        'data' => $transaksi,
     ], 200);
 }
 

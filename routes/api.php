@@ -61,6 +61,14 @@ Route::delete('paket/{paket}', 'App\Http\Controllers\PaketController@destroy');
 
 Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::get('pengguna', 'App\Http\Controllers\PenggunaController@index');
+    Route::put('pengguna', 'App\Http\Controllers\PenggunaController@updatePengguna');
+    Route::post('updatePenggunaGambar', 'App\Http\Controllers\PenggunaController@updateGambar');
+
+    Route::get('detailTransaksiPengguna', 'App\Http\Controllers\DetailTransaksiController@indexPengguna');
+    
+    Route::get('transaksi', 'App\Http\Controllers\TransaksiController@index');
+    Route::put('updateStatusTransaksi/{updateStatusTransaksi}', 'App\Http\Controllers\TransaksiController@updateStatus');
+
     
     Route::post('/filter', 'App\Http\Controllers\FilterController@filter');
 });

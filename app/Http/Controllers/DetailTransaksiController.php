@@ -9,6 +9,28 @@ use Illuminate\Support\Facades\Validator;
 class DetailTransaksiController extends Controller
 {
     public function index()
+{
+    $user = auth()->user();
+    if (!$user) {
+        return response()->json([
+            'message' => 'User not authenticated.',
+        ], 401);
+    }
+
+    $id_penyedia = $user->id_penyedia;
+    $detailTransaksis = DetailTransaksi::whereHas('Paket', function($query) use ($id_penyedia) {
+        $query->where('id_penyedia', $id_penyedia);
+    })->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')->get();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Detail transaksis retrieved successfully',
+        'data' => $detailTransaksis,
+    ], 200);
+}
+
+
+    public function indexPengguna()
     {
         $user = auth()->user();
         if (!$user) {
@@ -17,7 +39,10 @@ class DetailTransaksiController extends Controller
             ], 401);
         }
 
-        $detailTransaksis = DetailTransaksi::with('Paket')->with('Transaksi')->with('Paket.PenyediaJasa')->with('Transaksi.Pengguna')->get();
+        $id_pengguna = $user->id_pengguna;
+        $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function($query) use ($id_pengguna) {
+            $query->where('id_pengguna', $id_pengguna);
+        })->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')->get();
 
         return response()->json([
             'status' => 'success',
