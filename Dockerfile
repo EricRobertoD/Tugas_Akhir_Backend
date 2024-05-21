@@ -20,7 +20,6 @@ COPY . .
 # Install Composer dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-scripts
-RUN php artisan passport:keys
 
 # Expose the port
 EXPOSE 8080
