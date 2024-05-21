@@ -227,6 +227,53 @@ class AuthController extends Controller
     }
 
 
+    // public function updatePenyedia(Request $request)
+    // {
+    //     $user = auth()->user();
+    //     if (!$user) {
+    //         return response()->json([
+    //             'message' => 'User not authenticated.',
+    //         ], 401);
+    //     }
+
+    //     $id_penyedia = $user->id_penyedia;
+    //     $penyedia = PenyediaJasa::find($id_penyedia);
+
+    //     if (!$penyedia) {
+    //         return response()->json([
+    //             'message' => 'Penyedia not found.',
+    //         ], 404);
+    //     }
+
+    //     $validate = Validator::make($request->all(), [
+    //         'nama_penyedia' => 'required',
+    //         'email_penyedia' => 'required|string|email|max:255|unique:penyedia_jasa,email_penyedia,' . $id_penyedia . ',id_penyedia',
+    //         'nomor_telepon_penyedia' => 'required',
+    //         'nomor_whatsapp_penyedia' => 'required',
+    //         'alamat_penyedia' => 'required',
+    //     ]);
+
+    //     if ($validate->fails()) {
+    //         $errors = $validate->errors();
+    //         $response = [
+    //             'status' => 'error',
+    //             'message' => 'Validation failed.',
+    //             'errors' => $errors->toArray()
+    //         ];
+
+    //         return response()->json($response, 400);
+    //     }
+
+    //     $penyedia->update($request->all());
+
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => 'Penyedia updated successfully',
+    //         'data' => $penyedia,
+    //     ], 200);
+    // }
+
+    
     public function updatePenyedia(Request $request)
     {
         $user = auth()->user();
