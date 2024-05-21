@@ -20,6 +20,10 @@ COPY . .
 # Install Composer dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-scripts
+composer require laravel/passport
+php artisan migrate
+php artisan passport:install
+php artisan api:install
 
 # Expose the port
 EXPOSE 8080
