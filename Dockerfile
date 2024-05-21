@@ -1,49 +1,29 @@
-FROM dunglas/frankenphp:1.1-builder-php8.2.16
+# Use the official PHP base image
+FROM php:8.1
 
-# Set Caddy server name to "http://" to serve on 80 and not 443
-# Read more: https://frankenphp.dev/docs/config/#environment-variables
-ENV SERVER_NAME="http://"
-
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    git \
-    unzip \
-    librabbitmq-dev \
-    libpq-dev \
-    supervisor
-
-RUN install-php-extensions \
-    gd \
-    pcntl \
-    opcache \
-    pdo \
-    pdo_mysql \
-    redis
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
+# Set the working directory
 WORKDIR /var/www/html
 
-# Copy the Laravel application files into the container.
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    zip \
+    unzip \
+    curl \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_mysql \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy application files
 COPY . .
 
-# Start with base PHP config, then add extensions.
-COPY ./.docker/php/php.ini /usr/local/etc/php/
-COPY ./.docker/etc/supervisor.d/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Install Composer dependencies
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-scripts
+RUN php artisan passport:keys
 
-# Install PHP extensions
-RUN pecl install xdebug
+# Expose the port
+EXPOSE 8080
 
-# Install Laravel dependencies using Composer.
-RUN composer install
-
-# Enable PHP extensions
-RUN docker-php-ext-enable xdebug
-
-# Set permissions for Laravel.
-RUN chown -R www-data:www-data storage bootstrap/cache
-
-EXPOSE 80 443
-
-# Start Supervisor.
-CMD ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisor/conf.d/supervisord.conf"]
+# Define the command to run your Laravel application
+CMD php artisan serve --host=0.0.0.0 --port=8080
