@@ -77,6 +77,8 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::post('ulasan', 'App\Http\Controllers\UlasanController@store');
 
     Route::post('chatPengguna', 'App\Http\Controllers\ChatController@storePengguna');
-    Route::get('chatPengguna', 'App\Http\Controllers\ChatController@chatPengguna');
+    Route::post('isiChatPengguna', 'App\Http\Controllers\ChatController@chatPengguna');
+
+    Route::get('listChatPengguna', 'App\Http\Controllers\ChatController@listPenyediaForPengguna');
     
 });

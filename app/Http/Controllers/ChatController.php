@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Events\NotifyyFrontend;
 use App\Models\Chat;
+use App\Models\PenyediaJasa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -88,10 +90,10 @@ class ChatController extends Controller
 
         $chats = Chat::where(function ($query) use ($id_penyedia, $id_pengguna) {
             $query->where('id_penyedia', $id_penyedia)
-                  ->where('id_pengguna', $id_pengguna);
+                ->where('id_pengguna', $id_pengguna);
         })->orWhere(function ($query) use ($id_penyedia, $id_pengguna) {
             $query->where('id_penyedia', $id_pengguna)
-                  ->where('id_pengguna', $id_penyedia);
+                ->where('id_pengguna', $id_penyedia);
         })->orderBy('created_at', 'asc')->get();
 
         return response([
@@ -119,16 +121,35 @@ class ChatController extends Controller
 
         $chats = Chat::where(function ($query) use ($id_penyedia, $id_pengguna) {
             $query->where('id_penyedia', $id_penyedia)
-                  ->where('id_pengguna', $id_pengguna);
+                ->where('id_pengguna', $id_pengguna);
         })->orWhere(function ($query) use ($id_penyedia, $id_pengguna) {
             $query->where('id_penyedia', $id_pengguna)
-                  ->where('id_pengguna', $id_penyedia);
+                ->where('id_pengguna', $id_penyedia);
         })->orderBy('created_at', 'asc')->get();
 
         return response([
             'status' => 'success',
             'message' => 'Chat messages retrieved successfully',
             'data' => $chats
+        ], 200);
+    }
+
+    public function listPenyediaForPengguna(Request $request)
+    {
+        $id_pengguna = auth()->user()->id_pengguna;
+
+        $penyediaIds = Chat::where('id_pengguna', $id_pengguna)
+            ->select('id_penyedia')
+            ->distinct()
+            ->get()
+            ->pluck('id_penyedia');
+
+        $penyedia = PenyediaJasa::whereIn('id_penyedia', $penyediaIds)->get();
+
+        return response([
+            'status' => 'success',
+            'message' => 'Penyedia list retrieved successfully',
+            'data' => $penyedia
         ], 200);
     }
 }
