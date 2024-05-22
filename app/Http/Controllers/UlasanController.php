@@ -34,7 +34,7 @@ class UlasanController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id_detail_transaksi' => 'required',
-            'rating' => 'required',
+            'rate_ulasan' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -46,8 +46,8 @@ class UlasanController extends Controller
 
         $ulasan = Ulasan::create([
             'id_detail_transaksi' => $request->input('id_detail_transaksi'),
-            'rating' => $request->input('rating'),
-            'komentar' => $request->input('komentar'),
+            'rate_ulasan' => $request->input('rate_ulasan'),
+            'isi_ulasan' => $request->input('isi_ulasan'),
         ]);
 
         return response([
