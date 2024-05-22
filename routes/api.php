@@ -21,6 +21,7 @@ Route::delete('paket/{paket}', 'App\Http\Controllers\PaketController@destroy')->
 Route::post('forgotPassword', 'App\Http\Controllers\AuthController@forgotPasswordPengguna');
 Route::post('resetPassword', 'App\Http\Controllers\AuthController@resetPassword');
 
+Route::post('test', 'App\Http\Controllers\ChatController@storePengguna');
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -74,4 +75,5 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
 
     Route::put('updateStatusDetailTransaksi/{updateStatusDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@updateStatus');
     Route::post('ulasan', 'App\Http\Controllers\UlasanController@store');
+    
 });

@@ -43,4 +43,9 @@ class Pengguna extends Authenticatable
         return $this->hasMany(Ulasan::class, 'id_pengguna');
     }
 
+    public function Chat()
+    {
+        return $this->hasMany(Chat::class, 'id_pengguna');
+    }
+
 }

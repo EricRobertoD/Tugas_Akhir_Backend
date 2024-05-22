@@ -51,4 +51,9 @@ class PenyediaJasa extends Authenticatable
     {
         return $this->hasMany(Paket::class, 'id_penyedia');
     }
+
+    Public function Chat()
+    {
+        return $this->hasMany(Chat::class, 'id_penyedia');
+    }
 }
