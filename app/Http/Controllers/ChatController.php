@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Events\NotifyyFrontend;
@@ -15,7 +14,6 @@ class ChatController extends Controller
         $validator = Validator::make($request->all(), [
             'isi_chat' => 'required',
             'id_penyedia' => 'required',
-            'id_pengguna' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -31,9 +29,8 @@ class ChatController extends Controller
             'id_pengguna' => $id_pengguna,
         ]);
 
-        broadcast(new NotifyyFrontend('message succesfully sent', 'channel-' . $id_pengguna))->toOthers();
-        broadcast(new NotifyyFrontend('message succesfully sent', 'channel-' . $chat->id_penyedia))->toOthers();
-
+        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $id_pengguna))->toOthers();
+        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $chat->id_penyedia))->toOthers();
 
         return response([
             'status' => 'success',
@@ -42,13 +39,11 @@ class ChatController extends Controller
         ], 201);
     }
 
-
     public function storePenyedia(Request $request)
     {
         $id_penyedia = auth()->user()->id_penyedia;
         $validator = Validator::make($request->all(), [
             'isi_chat' => 'required',
-            'id_penyedia' => 'required',
             'id_pengguna' => 'required',
         ]);
 
@@ -62,12 +57,11 @@ class ChatController extends Controller
         $chat = Chat::create([
             'isi_chat' => $request->input('isi_chat'),
             'id_penyedia' => $id_penyedia,
-            'id_pengguna' => $request->input('id_penyedia'),
+            'id_pengguna' => $request->input('id_pengguna'),
         ]);
 
-        broadcast(new NotifyyFrontend('message succesfully sent', 'channel-' . $id_penyedia))->toOthers();
-        broadcast(new NotifyyFrontend('message succesfully sent', 'channel-' . $chat->id_pengguna))->toOthers();
-
+        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $id_penyedia))->toOthers();
+        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $chat->id_pengguna))->toOthers();
 
         return response([
             'status' => 'success',
@@ -106,7 +100,7 @@ class ChatController extends Controller
             'data' => $chats
         ], 200);
     }
-    
+
     public function chatPenyedia(Request $request)
     {
         $id_penyedia = auth()->user()->id_penyedia;
