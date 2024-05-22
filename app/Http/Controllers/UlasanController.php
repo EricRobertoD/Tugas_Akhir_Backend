@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ulasan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UlasanController extends Controller
 {
@@ -27,5 +28,32 @@ class UlasanController extends Controller
             'message' => 'Ulasan retrieved successfully',
             'data' => $ulasan,
         ], 200);
+    }
+
+    public function store($request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id_detail_transaksi' => 'required',
+            'rating' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $ulasan = Ulasan::create([
+            'id_detail_transaksi' => $request->input('id_detail_transaksi'),
+            'rating' => $request->input('rating'),
+            'komentar' => $request->input('komentar'),
+        ]);
+
+        return response([
+            'status' => 'success',
+            'message' => 'Ulasan created successfully',
+            'data' => $ulasan
+        ], 201);
     }
 }
