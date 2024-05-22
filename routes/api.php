@@ -75,5 +75,8 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
 
     Route::put('updateStatusDetailTransaksi/{updateStatusDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@updateStatus');
     Route::post('ulasan', 'App\Http\Controllers\UlasanController@store');
+
+    Route::post('chatPengguna', 'App\Http\Controllers\ChatController@storePengguna');
+    Route::get('chatPengguna', 'App\Http\Controllers\ChatController@chatPengguna');
     
 });
