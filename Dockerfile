@@ -22,8 +22,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN composer install --no-scripts
 RUN composer require pusher/pusher-php-server
 RUN php artisan storage:link
-RUN php artisan install:api
-RUN php artisan install:broadcasting
 
 # Expose the port
 EXPOSE 8080
