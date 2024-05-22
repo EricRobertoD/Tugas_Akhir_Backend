@@ -29,6 +29,7 @@ class ChatController extends Controller
             'isi_chat' => $request->input('isi_chat'),
             'id_penyedia' => $request->input('id_penyedia'),
             'id_pengguna' => $id_pengguna,
+            'uid_sender' => $id_pengguna,
         ]);
 
         broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $id_pengguna))->toOthers();
@@ -60,6 +61,7 @@ class ChatController extends Controller
             'isi_chat' => $request->input('isi_chat'),
             'id_penyedia' => $id_penyedia,
             'id_pengguna' => $request->input('id_pengguna'),
+            'uid_sender' => $id_penyedia,
         ]);
 
         broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $id_penyedia))->toOthers();
@@ -102,6 +104,7 @@ class ChatController extends Controller
             'data' => $chats
         ], 200);
     }
+    
 
     public function chatPenyedia(Request $request)
     {

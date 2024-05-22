@@ -15,6 +15,7 @@ class Chat extends Model
         'id_penyedia',
         'id_pengguna',
         'isi_chat',
+        'uid_sender',
     ];
 
     public function PenyediaJasa()

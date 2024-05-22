@@ -57,6 +57,10 @@ Route::get('paket', 'App\Http\Controllers\PaketController@index');
 Route::post('paket', 'App\Http\Controllers\PaketController@store');
 Route::put('paket/{paket}', 'App\Http\Controllers\PaketController@update');
 Route::delete('paket/{paket}', 'App\Http\Controllers\PaketController@destroy');
+
+Route::post('chatPenyedia', 'App\Http\Controllers\ChatController@storePenyedia');
+Route::post('isiChatPenyedia', 'App\Http\Controllers\ChatController@chatPenyedia');
+
 });
 
 
