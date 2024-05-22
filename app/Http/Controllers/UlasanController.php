@@ -30,30 +30,32 @@ class UlasanController extends Controller
         ], 200);
     }
 
-    public function store($request)
-    {
-        $validator = Validator::make($request->all(), [
-            'id_detail_transaksi' => 'required',
-            'rate_ulasan' => 'required',
-        ]);
-
-        if ($validator->fails()) {
+        public function store(Request $request)
+        {
+            $id_pengguna = auth()->user()->id_pengguna;
+            $validator = Validator::make($request->all(), [
+                'id_detail_transaksi' => 'required',
+                'rate_ulasan' => 'required',
+            ]);
+    
+            if ($validator->fails()) {
+                return response([
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 400);
+            }
+    
+            $ulasan = Ulasan::create([
+                'id_detail_transaksi' => $request->input('id_detail_transaksi'),
+                'rate_ulasan' => $request->input('rate_ulasan'),
+                'isi_ulasan' => $request->input('isi_ulasan'),
+                'id_pengguna' => $id_pengguna,
+            ]);
+    
             return response([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 400);
+                'status' => 'success',
+                'message' => 'Ulasan created successfully',
+                'data' => $ulasan
+            ], 201);
         }
-
-        $ulasan = Ulasan::create([
-            'id_detail_transaksi' => $request->input('id_detail_transaksi'),
-            'rate_ulasan' => $request->input('rate_ulasan'),
-            'isi_ulasan' => $request->input('isi_ulasan'),
-        ]);
-
-        return response([
-            'status' => 'success',
-            'message' => 'Ulasan created successfully',
-            'data' => $ulasan
-        ], 201);
-    }
 }
