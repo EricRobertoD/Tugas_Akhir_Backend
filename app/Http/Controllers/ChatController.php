@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\NotifyyFrontend;
 use App\Models\Chat;
+use App\Models\Pengguna;
 use App\Models\PenyediaJasa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -153,6 +154,26 @@ class ChatController extends Controller
             'status' => 'success',
             'message' => 'Penyedia list retrieved successfully',
             'data' => $penyedia
+        ], 200);
+    }
+
+    
+    public function listPenggunaForPenyedia(Request $request)
+    {
+        $id_penyedia = auth()->user()->id_penyedia;
+
+        $penyediaIds = Chat::where('id_penyedia', $id_penyedia)
+            ->select('id_pengguna')
+            ->distinct()
+            ->get()
+            ->pluck('id_pengguna');
+
+        $pengguna = Pengguna::whereIn('id_pengguna', $penyediaIds)->get();
+
+        return response([
+            'status' => 'success',
+            'message' => 'Pengguna list retrieved successfully',
+            'data' => $pengguna
         ], 200);
     }
 }

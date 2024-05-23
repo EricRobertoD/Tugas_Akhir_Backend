@@ -60,6 +60,7 @@ Route::delete('paket/{paket}', 'App\Http\Controllers\PaketController@destroy');
 
 Route::post('chatPenyedia', 'App\Http\Controllers\ChatController@storePenyedia');
 Route::post('isiChatPenyedia', 'App\Http\Controllers\ChatController@chatPenyedia');
+Route::get('listChatPenyedia', 'App\Http\Controllers\ChatController@listPenggunaForPenyedia');
 
 });
 
@@ -82,7 +83,6 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
 
     Route::post('chatPengguna', 'App\Http\Controllers\ChatController@storePengguna');
     Route::post('isiChatPengguna', 'App\Http\Controllers\ChatController@chatPengguna');
-
     Route::get('listChatPengguna', 'App\Http\Controllers\ChatController@listPenyediaForPengguna');
     
 });
