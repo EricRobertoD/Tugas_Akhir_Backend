@@ -62,6 +62,8 @@ Route::post('chatPenyedia', 'App\Http\Controllers\ChatController@storePenyedia')
 Route::post('isiChatPenyedia', 'App\Http\Controllers\ChatController@chatPenyedia');
 Route::get('listChatPenyedia', 'App\Http\Controllers\ChatController@listPenggunaForPenyedia');
 
+Route::post('PenyediaSpecific', 'App\Http\Controllers\PenyediaController@indexPenyediaSpecific');
+
 });
 
 

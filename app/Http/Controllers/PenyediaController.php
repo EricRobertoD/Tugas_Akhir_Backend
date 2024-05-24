@@ -27,6 +27,23 @@ class PenyediaController extends Controller
             'data' => $penyedia,
         ], 200);
     }
+
+    
+    public function indexPenyediaSpecific(Request $request)
+    {
+        
+        $validator = Validator::make($request->all(), [
+            'id_penyedia' => 'required',
+        ]);
+
+        $penyedia = PenyediaJasa::where('id_penyedia', $request->input('id_penyedia'))->with('GambarPorto')->with('Paket')->first();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Penyedia retrieved successfully',
+            'data' => $penyedia,
+        ], 200);
+    }
     
     public function updateGambar(Request $request)
     {
