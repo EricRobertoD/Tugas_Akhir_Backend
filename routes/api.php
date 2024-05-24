@@ -84,5 +84,6 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::post('chatPengguna', 'App\Http\Controllers\ChatController@storePengguna');
     Route::post('isiChatPengguna', 'App\Http\Controllers\ChatController@chatPengguna');
     Route::get('listChatPengguna', 'App\Http\Controllers\ChatController@listPenyediaForPengguna');
+    Route::post('chatPenggunaFirst', 'App\Http\Controllers\ChatController@storePenggunaFirst');
     
 });
