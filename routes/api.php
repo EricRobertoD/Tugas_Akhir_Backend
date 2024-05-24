@@ -62,7 +62,6 @@ Route::post('chatPenyedia', 'App\Http\Controllers\ChatController@storePenyedia')
 Route::post('isiChatPenyedia', 'App\Http\Controllers\ChatController@chatPenyedia');
 Route::get('listChatPenyedia', 'App\Http\Controllers\ChatController@listPenggunaForPenyedia');
 
-Route::post('PenyediaSpecific', 'App\Http\Controllers\PenyediaController@indexPenyediaSpecific');
 
 });
 
@@ -87,5 +86,7 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::post('isiChatPengguna', 'App\Http\Controllers\ChatController@chatPengguna');
     Route::get('listChatPengguna', 'App\Http\Controllers\ChatController@listPenyediaForPengguna');
     Route::post('chatPenggunaFirst', 'App\Http\Controllers\ChatController@storePenggunaFirst');
+    
+    Route::post('PenyediaSpecific', 'App\Http\Controllers\PenyediaController@indexPenyediaSpecific');
     
 });
