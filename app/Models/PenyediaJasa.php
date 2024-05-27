@@ -21,6 +21,7 @@ class PenyediaJasa extends Authenticatable
         'nomor_telepon_penyedia',
         'nomor_whatsapp_penyedia',
         'alamat_penyedia',
+        'provinsi_penyedia',
         'nama_role',
         'gambar_penyedia',
         'deskripsi_penyedia',
