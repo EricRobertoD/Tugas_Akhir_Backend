@@ -21,6 +21,7 @@ class FilterController extends Controller
             'start_time' => 'required',
             'end_time' => 'required',
             'date_time' => 'required',
+            'provinsi_penyedia' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -35,6 +36,7 @@ class FilterController extends Controller
         $startTime = $request->input('start_time');
         $endTime = $request->input('end_time');
         $dateTime = $request->input('date_time');
+        $provinsiPenyedia = $request->input('provinsi_penyedia');
 
         $date = Carbon::parse($dateTime);
         $dayOfWeek = $date->dayOfWeekIso;
@@ -59,9 +61,14 @@ class FilterController extends Controller
             ->whereHas('Paket', function ($query) use ($startBudget, $endBudget) {
                 $query->where('harga_paket', '>=', $startBudget)
                       ->where('harga_paket', '<=', $endBudget);
-            })
-            ->get();
+            });
 
-        return response()->json($penyediaJasa);
+        if ($provinsiPenyedia !== 'Semua') {
+            $penyediaJasa->where('provinsi_penyedia', $provinsiPenyedia);
+        }
+
+        $result = $penyediaJasa->get();
+
+        return response()->json($result);
     }
 }
