@@ -19,7 +19,6 @@ class FilterController extends Controller
             'start_time' => 'required',
             'end_time' => 'required',
             'date_time' => 'required',
-            'provinsi_penyedia' => 'required',
         ]);
 
         if ($validator->fails()) {

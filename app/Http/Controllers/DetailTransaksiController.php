@@ -3,31 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailTransaksi;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class DetailTransaksiController extends Controller
 {
     public function index()
-{
-    $user = auth()->user();
-    if (!$user) {
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        $id_penyedia = $user->id_penyedia;
+        $detailTransaksis = DetailTransaksi::whereHas('Paket', function ($query) use ($id_penyedia) {
+            $query->where('id_penyedia', $id_penyedia);
+        })->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')->get();
+
         return response()->json([
-            'message' => 'User not authenticated.',
-        ], 401);
+            'status' => 'success',
+            'message' => 'Detail transaksis retrieved successfully',
+            'data' => $detailTransaksis,
+        ], 200);
     }
-
-    $id_penyedia = $user->id_penyedia;
-    $detailTransaksis = DetailTransaksi::whereHas('Paket', function($query) use ($id_penyedia) {
-        $query->where('id_penyedia', $id_penyedia);
-    })->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')->get();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Detail transaksis retrieved successfully',
-        'data' => $detailTransaksis,
-    ], 200);
-}
 
 
     public function indexPengguna()
@@ -40,7 +41,7 @@ class DetailTransaksiController extends Controller
         }
 
         $id_pengguna = $user->id_pengguna;
-        $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function($query) use ($id_pengguna) {
+        $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function ($query) use ($id_pengguna) {
             $query->where('id_pengguna', $id_pengguna);
         })->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')->get();
 
@@ -82,7 +83,6 @@ class DetailTransaksiController extends Controller
         ], 201);
     }
 
-    
     public function tambahKeranjang(Request $request)
     {
         $id_pengguna = auth()->user()->id_pengguna;
@@ -101,8 +101,21 @@ class DetailTransaksiController extends Controller
             ], 400);
         }
 
-        $detailTransaksi = detailTransaksi::create([
+        $transaksi = Transaksi::where('id_pengguna', $id_pengguna)
+            ->whereNull('status_transaksi')
+            ->first();
+
+        if (!$transaksi) {
+            $transaksi = Transaksi::create([
+                'id_pengguna' => $id_pengguna,
+                'status_transaksi' => null,
+                'total_harga' => 0,
+            ]);
+        }
+
+        $detailTransaksi = DetailTransaksi::create([
             'id_pengguna' => $id_pengguna,
+            'id_transaksi' => $transaksi->id_transaksi,
             'id_paket' => $request->input('id_paket'),
             'subtotal' => $request->input('subtotal'),
             'tanggal_pelaksanaan' => $request->input('tanggal_pelaksanaan'),
@@ -111,6 +124,9 @@ class DetailTransaksiController extends Controller
             'status_berlangsung' => 'Keranjang',
         ]);
 
+        $transaksi->total_harga += $request->input('subtotal');
+        $transaksi->save();
+
         return response([
             'status' => 'success',
             'message' => 'Tambah Keranjang successfully',
@@ -118,11 +134,36 @@ class DetailTransaksiController extends Controller
         ], 201);
     }
 
+
+    public function indexKeranjang()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
     
+        $id_pengguna = $user->id_pengguna;
+        
+        $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function ($query) use ($id_pengguna) {
+            $query->where('id_pengguna', $id_pengguna)
+                  ->whereNull('status_transaksi');
+        })->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')->get();
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Detail transaksis retrieved successfully',
+            'data' => $detailTransaksis,
+        ], 200);
+    }
+    
+
+
     public function updateStatus(Request $request, $id)
     {
         $transaksi = DetailTransaksi::find($id);
-    
+
         if (!$transaksi) {
             return response()->json([
                 'message' => 'Detail Transaksi not found.',
@@ -131,7 +172,7 @@ class DetailTransaksiController extends Controller
         $validator = Validator::make($request->all(), [
             'status_penyedia_jasa' => 'required',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
@@ -140,7 +181,7 @@ class DetailTransaksiController extends Controller
         }
         $transaksi->status_penyedia_jasa = $request->input('status_penyedia_jasa');
         $transaksi->save();
-    
+
         return response()->json([
             'status' => 'success',
             'message' => 'Detail Transaksi updated successfully',
