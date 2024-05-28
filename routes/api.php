@@ -74,7 +74,7 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::get('detailTransaksiPengguna', 'App\Http\Controllers\DetailTransaksiController@indexPengguna');
 
     Route::get('transaksi', 'App\Http\Controllers\TransaksiController@index');
-    Route::put('updateStatusTransaksi/{updateStatusTransaksi}', 'App\Http\Controllers\TransaksiController@updateStatus');
+    Route::post('updateStatusTransaksi/{updateStatusTransaksi}', 'App\Http\Controllers\TransaksiController@updateStatus');
 
     
     Route::post('/filter', 'App\Http\Controllers\FilterController@filter');
