@@ -121,7 +121,6 @@ class DetailTransaksiController extends Controller
             'tanggal_pelaksanaan' => $request->input('tanggal_pelaksanaan'),
             'jam_mulai' => $request->input('jam_mulai'),
             'jam_selesai' => $request->input('jam_selesai'),
-            'status_berlangsung' => 'Keranjang',
         ]);
 
         $transaksi->total_harga += $request->input('subtotal');

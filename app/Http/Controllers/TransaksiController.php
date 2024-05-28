@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaksi;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class TransaksiController extends Controller
@@ -70,6 +72,7 @@ class TransaksiController extends Controller
         }
         $validator = Validator::make($request->all(), [
             'status_transaksi' => 'required',
+            'bukti_bayar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -78,7 +81,24 @@ class TransaksiController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
+
+        if ($request->hasFile('bukti_bayar')) {
+            $filenameWithExt = $request->file('bukti_bayar')->getClientOriginalName();
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $extension = $request->file('bukti_bayar')->getClientOriginalExtension();
+            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+            $path = $request->file('bukti_bayar')->storeAs('gambar', $fileNameToStore, 'public');
+
+            if ($transaksi->bukti_bayar !== 'noimage.jpg' && !is_null($transaksi->bukti_bayar)) {
+                Storage::disk('public')->delete('gambar/' . $transaksi->bukti_bayar);
+            }
+
+            $transaksi->bukti_bayar = $fileNameToStore;
+        }
+
         $transaksi->status_transaksi = $request->input('status_transaksi');
+        $transaksi->tanggal_pemesanan = Carbon::today()->format('Y-m-d');
+
         $transaksi->save();
 
         return response()->json([
