@@ -88,32 +88,4 @@ class TransaksiController extends Controller
         ], 200);
     }
 
-    public function indexKeranjang()
-    {
-        $user = auth()->user();
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not authenticated.',
-            ], 401);
-        }
-
-        $id_pengguna = $user->id_pengguna;
-        $transaksi = Transaksi::where('id_pengguna', $id_pengguna)
-            ->whereHas('DetailTransaksi', function ($query) {
-                $query->where('status_berlangsung', 'Keranjang');
-            })
-            ->with('DetailTransaksi', function ($query) {
-                $query->where('status_berlangsung', 'Keranjang');
-            })
-            ->with('Pengguna')
-            ->with('DetailTransaksi.Paket')
-            ->with('DetailTransaksi.Paket.PenyediaJasa')
-            ->get();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Transaksi retrieved successfully',
-            'data' => $transaksi,
-        ], 200);
-    }
 }

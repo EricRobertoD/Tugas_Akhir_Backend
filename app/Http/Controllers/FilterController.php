@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -50,13 +49,17 @@ class FilterController extends Controller
             })
             ->where(function ($query) use ($date, $startTime, $endTime) {
                 $query->whereHas('Paket.DetailTransaksi', function ($query) use ($date, $startTime, $endTime) {
-                    $query->where('tanggal_pelaksanaan', '=', $date)
-                          ->where('status_berlangsung', 'Sedang Berlangsung')
-                          ->where(function ($query) use ($startTime, $endTime) {
-                              $query->where('jam_mulai', '>', $endTime)
-                                    ->orWhere('jam_selesai', '<', $startTime);
-                          });
-                }, '<=', 0)
+                    $query->whereHas('Transaksi', function ($query) {
+                        $query->whereNotNull('status_transaksi');
+                    })
+                    ->where('tanggal_pelaksanaan', '=', $date)
+                    ->where(function ($query) use ($startTime, $endTime) {
+                        $query->where(function ($query) use ($startTime, $endTime) {
+                            $query->where('jam_mulai', '>', $endTime)
+                                  ->orWhere('jam_selesai', '<', $startTime);
+                        });
+                    });
+                })
                 ->orDoesntHave('Paket.DetailTransaksi');
             })
             ->whereHas('Paket', function ($query) use ($startBudget, $endBudget) {
