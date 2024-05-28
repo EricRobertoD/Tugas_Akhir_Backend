@@ -143,22 +143,57 @@ class DetailTransaksiController extends Controller
                 'message' => 'User not authenticated.',
             ], 401);
         }
-    
+
         $id_pengguna = $user->id_pengguna;
-        
+
         $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function ($query) use ($id_pengguna) {
             $query->where('id_pengguna', $id_pengguna)
-                  ->whereNull('status_transaksi');
+                ->whereNull('status_transaksi');
         })->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')->get();
-    
+
         return response()->json([
             'status' => 'success',
             'message' => 'Detail transaksis retrieved successfully',
             'data' => $detailTransaksis,
         ], 200);
     }
-    
 
+    public function deleteKeranjang(Request $request, $id_detail_transaksi)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        $id_pengguna = $user->id_pengguna;
+
+        $detailTransaksi = DetailTransaksi::where('id_detail_transaksi', $id_detail_transaksi)
+            ->whereHas('Transaksi', function ($query) use ($id_pengguna) {
+                $query->where('id_pengguna', $id_pengguna)
+                    ->whereNull('status_transaksi');
+            })->first();
+
+        if (!$detailTransaksi) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'DetailTransaksi not found or not eligible for deletion',
+            ], 404);
+        }
+
+        $transaksi = $detailTransaksi->Transaksi;
+
+        $detailTransaksi->delete();
+
+        $transaksi->total_harga -= $detailTransaksi->subtotal;
+        $transaksi->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'DetailTransaksi deleted successfully',
+        ], 200);
+    }
 
     public function updateStatus(Request $request, $id)
     {

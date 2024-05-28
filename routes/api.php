@@ -92,5 +92,6 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::post('tambahKeranjang', 'App\Http\Controllers\DetailTransaksiController@tambahKeranjang');
     Route::get('/penyedia/{id_penyedia}/paket', 'App\Http\Controllers\PaketController@getPaketsByPenyedia');
     Route::get('/keranjang', 'App\Http\Controllers\DetailTransaksiController@indexKeranjang');
+    Route::delete('/keranjang/{id_detail_transaksi}', 'App\Http\Controllers\DetailTransaksiController@deleteKeranjang');
     
 });
