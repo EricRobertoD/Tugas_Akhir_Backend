@@ -4,10 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PenyediaJasa;
-use App\Models\Jadwal;
-use App\Models\TanggalLibur;
-use App\Models\Transaksi;
-use App\Models\Paket;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
@@ -44,39 +40,36 @@ class FilterController extends Controller
         $penyediaJasa = PenyediaJasa::query()
             ->whereHas('Jadwal', function ($query) use ($dayOfWeek, $startTime, $endTime) {
                 $query->where('hari', $dayOfWeek)
-                      ->where('jam_buka', '<=', $startTime)
-                      ->where('jam_tutup', '>=', $endTime);
+                    ->where('jam_buka', '<=', $startTime)
+                    ->where('jam_tutup', '>=', $endTime);
             })
             ->whereDoesntHave('TanggalLibur', function ($query) use ($date) {
                 $query->where('tanggal_awal', '<=', $date)
-                      ->where('tanggal_akhir', '>=', $date);
+                    ->where('tanggal_akhir', '>=', $date);
             })
-            ->where(function ($query) use ($date, $startTime, $endTime) {
-                $query->whereHas('Paket.DetailTransaksi.Transaksi', function ($query) use ($date, $startTime, $endTime) {
-                    $query->where(function ($query) use ($date, $startTime, $endTime) {
-                        $query->where('status_transaksi', 'Sudah Bayar')
-                              ->where('tanggal_pelaksanaan', '=', $date)
-                              ->where(function ($query) use ($startTime, $endTime) {
-                                  $query->where(function ($query) use ($startTime, $endTime) {
-                                      $query->where('jam_mulai', '<=', $startTime)
-                                            ->where('jam_selesai', '>=', $startTime);
-                                  })
-                                  ->orWhere(function ($query) use ($startTime, $endTime) {
-                                      $query->where('jam_mulai', '<=', $endTime)
-                                            ->where('jam_selesai', '>=', $endTime);
-                                  })
-                                  ->orWhere(function ($query) use ($startTime, $endTime) {
-                                      $query->where('jam_mulai', '>=', $startTime)
-                                            ->where('jam_selesai', '<=', $endTime);
-                                  });
-                              });
+            ->whereDoesntHave('Paket.DetailTransaksi', function ($query) use ($date, $startTime, $endTime) {
+                $query->whereHas('Transaksi', function ($query) {
+                    $query->whereNotNull('status_transaksi');
+                })
+                ->where('tanggal_pelaksanaan', '=', $date)
+                ->where(function ($query) use ($startTime, $endTime) {
+                    $query->where(function ($query) use ($startTime, $endTime) {
+                        $query->where('jam_mulai', '<=', $startTime)
+                            ->where('jam_selesai', '>=', $startTime);
+                    })
+                    ->orWhere(function ($query) use ($startTime, $endTime) {
+                        $query->where('jam_mulai', '<=', $endTime)
+                            ->where('jam_selesai', '>=', $endTime);
+                    })
+                    ->orWhere(function ($query) use ($startTime, $endTime) {
+                        $query->where('jam_mulai', '>=', $startTime)
+                            ->where('jam_selesai', '<=', $endTime);
                     });
-                }, '<=', 0)
-                ->orDoesntHave('Paket.DetailTransaksi.Transaksi');
+                });
             })
             ->whereHas('Paket', function ($query) use ($startBudget, $endBudget) {
                 $query->where('harga_paket', '>=', $startBudget)
-                      ->where('harga_paket', '<=', $endBudget);
+                    ->where('harga_paket', '<=', $endBudget);
             });
 
         if ($provinsiPenyedia !== 'Semua') {
