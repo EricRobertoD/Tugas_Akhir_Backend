@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\PenyediaJasa;
 use App\Models\Jadwal;
 use App\Models\TanggalLibur;
-use App\Models\Transaksi;
-use App\Models\Paket;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
@@ -51,12 +49,16 @@ class FilterController extends Controller
                 $query->where('tanggal_awal', '<=', $date)
                       ->where('tanggal_akhir', '>=', $date);
             })
-            ->where(function ($query) use ($date) {
-                $query->whereHas('Paket.DetailTransaksi.Transaksi', function ($query) use ($date) {
+            ->where(function ($query) use ($date, $startTime, $endTime) {
+                $query->whereHas('Paket.DetailTransaksi', function ($query) use ($date, $startTime, $endTime) {
                     $query->where('tanggal_pelaksanaan', '=', $date)
-                          ->where('status_transaksi', 'Sudah Bayar');
+                          ->where('status_berlangsung', 'Sedang Berlangsung')
+                          ->where(function ($query) use ($startTime, $endTime) {
+                              $query->where('jam_mulai', '>', $endTime)
+                                    ->orWhere('jam_selesai', '<', $startTime);
+                          });
                 }, '<=', 0)
-                ->orDoesntHave('Paket.DetailTransaksi.Transaksi');
+                ->orDoesntHave('Paket.DetailTransaksi');
             })
             ->whereHas('Paket', function ($query) use ($startBudget, $endBudget) {
                 $query->where('harga_paket', '>=', $startBudget)

@@ -107,4 +107,21 @@ class PaketController extends Controller
             'message' => 'Paket deleted successfully',
         ], 200);
     }
+    
+    public function getPaketsByPenyedia($id_penyedia)
+    {
+        $pakets = Paket::where('id_penyedia', $id_penyedia)->get();
+
+        if ($pakets->isEmpty()) {
+            return response()->json([
+                'message' => 'No packages found for this provider.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pakets retrieved successfully',
+            'data' => $pakets,
+        ], 200);
+    }
 }

@@ -83,6 +83,42 @@ class DetailTransaksiController extends Controller
     }
 
     
+    public function tambahKeranjang(Request $request)
+    {
+        $id_pengguna = auth()->user()->id_pengguna;
+        $validator = Validator::make($request->all(), [
+            'id_paket' => 'required',
+            'subtotal' => 'required',
+            'tanggal_pelaksanaan' => 'required',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $detailTransaksi = detailTransaksi::create([
+            'id_pengguna' => $id_pengguna,
+            'id_paket' => $request->input('id_paket'),
+            'subtotal' => $request->input('subtotal'),
+            'tanggal_pelaksanaan' => $request->input('tanggal_pelaksanaan'),
+            'jam_mulai' => $request->input('jam_mulai'),
+            'jam_selesai' => $request->input('jam_selesai'),
+            'status_berlangsung' => 'Keranjang',
+        ]);
+
+        return response([
+            'status' => 'success',
+            'message' => 'Tambah Keranjang successfully',
+            'data' => $detailTransaksi
+        ], 201);
+    }
+
+    
     public function updateStatus(Request $request, $id)
     {
         $transaksi = DetailTransaksi::find($id);

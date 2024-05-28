@@ -15,9 +15,6 @@ class Transaksi extends Model
         'id_pengguna',
         'status_transaksi',
         'total_harga',
-        'tanggal_pelaksanaan',
-        'jam_mulai',
-        'jam_selesai',
     ];
 
     public function Pengguna()

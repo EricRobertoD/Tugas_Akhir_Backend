@@ -88,5 +88,8 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::post('chatPenggunaFirst', 'App\Http\Controllers\ChatController@storePenggunaFirst');
     
     Route::post('PenyediaSpecific', 'App\Http\Controllers\PenyediaController@indexPenyediaSpecific');
+
+    Route::post('tambahKeranjang', 'App\Http\Controllers\DetailTransaksiController@tambahKeranjang');
+    Route::get('/penyedia/{id_penyedia}/paket', 'App\Http\Controllers\PaketController@getPaketsByPenyedia');
     
 });

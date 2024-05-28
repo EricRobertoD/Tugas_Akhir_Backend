@@ -28,10 +28,10 @@ class PenyediaController extends Controller
         ], 200);
     }
 
-    
+
     public function indexPenyediaSpecific(Request $request)
     {
-        
+
         $validator = Validator::make($request->all(), [
             'id_penyedia' => 'required',
         ]);
@@ -44,7 +44,7 @@ class PenyediaController extends Controller
             'data' => $penyedia,
         ], 200);
     }
-    
+
     public function updateGambar(Request $request)
     {
         $id_penyedia = auth()->user()->id_penyedia;

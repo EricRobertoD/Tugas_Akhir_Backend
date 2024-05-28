@@ -9,23 +9,23 @@ use Illuminate\Support\Facades\Validator;
 class TanggalLiburController extends Controller
 {
     public function index()
-{
-    $user = auth()->user();
-    if (!$user) {
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        $id_penyedia = $user->id_penyedia;
+        $libur = TanggalLibur::where('id_penyedia', $id_penyedia)->get();
+
         return response()->json([
-            'message' => 'User not authenticated.',
-        ], 401);
+            'status' => 'success',
+            'message' => 'Libur retrieved successfully',
+            'data' => $libur,
+        ], 200);
     }
-
-    $id_penyedia = $user->id_penyedia;
-    $libur = TanggalLibur::where('id_penyedia', $id_penyedia)->get();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Libur retrieved successfully',
-        'data' => $libur,
-    ], 200);
-}
 
     public function store(Request $request)
     {
@@ -58,7 +58,7 @@ class TanggalLiburController extends Controller
     public function update(Request $request, $id)
     {
         $libur = TanggalLibur::find($id);
-    
+
         if (!$libur) {
             return response()->json([
                 'message' => 'Tanggal Libur not found.',
@@ -68,7 +68,7 @@ class TanggalLiburController extends Controller
             'tanggal_awal' => 'required',
             'tanggal_akhir' => 'required',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
@@ -78,7 +78,7 @@ class TanggalLiburController extends Controller
         $libur->tanggal_awal = $request->input('tanggal_awal');
         $libur->tanggal_akhir = $request->input('tanggal_akhir');
         $libur->save();
-    
+
         return response()->json([
             'status' => 'success',
             'message' => 'Tanggal Libur updated successfully',
@@ -89,13 +89,13 @@ class TanggalLiburController extends Controller
     public function destroy($id)
     {
         $libur = TanggalLibur::find($id);
-    
+
         if (!$libur) {
             return response()->json([
                 'message' => 'Tanggal Libur not found.',
             ], 404);
         }
-    
+
         $libur->delete();
 
         return response()->json([

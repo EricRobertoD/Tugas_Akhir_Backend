@@ -16,6 +16,10 @@ class DetailTransaksi extends Model
         'id_paket',
         'status_penyedia_jasa',
         'subtotal',
+        'tanggal_pelaksanaan',
+        'jam_mulai',
+        'jam_selesai',
+        'status_berlangsung',
     ];
 
     public function Paket()

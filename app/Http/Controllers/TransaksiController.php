@@ -9,23 +9,23 @@ use Illuminate\Support\Facades\Validator;
 class TransaksiController extends Controller
 {
     public function index()
-{
-    $user = auth()->user();
-    if (!$user) {
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        $id_pengguna = $user->id_pengguna;
+        $transaksi = Transaksi::where('id_pengguna', $id_pengguna)->with('DetailTransaksi')->with('Pengguna')->with('DetailTransaksi.Paket')->with('DetailTransaksi.Paket.PenyediaJasa')->get();
+
         return response()->json([
-            'message' => 'User not authenticated.',
-        ], 401);
+            'status' => 'success',
+            'message' => 'Transaksi retrieved successfully',
+            'data' => $transaksi,
+        ], 200);
     }
-
-    $id_pengguna = $user->id_pengguna;
-    $transaksi = Transaksi::where('id_pengguna', $id_pengguna)->with('DetailTransaksi')->with('Pengguna')->with('DetailTransaksi.Paket')->with('DetailTransaksi.Paket.PenyediaJasa')->get();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Transaksi retrieved successfully',
-        'data' => $transaksi,
-    ], 200);
-}
 
     public function store(Request $request)
     {
@@ -62,7 +62,7 @@ class TransaksiController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $transaksi = Transaksi::find($id);
-    
+
         if (!$transaksi) {
             return response()->json([
                 'message' => 'Transaksi not found.',
@@ -71,7 +71,7 @@ class TransaksiController extends Controller
         $validator = Validator::make($request->all(), [
             'status_transaksi' => 'required',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
@@ -80,7 +80,7 @@ class TransaksiController extends Controller
         }
         $transaksi->status_transaksi = $request->input('status_transaksi');
         $transaksi->save();
-    
+
         return response()->json([
             'status' => 'success',
             'message' => 'Transaksi updated successfully',
@@ -88,4 +88,32 @@ class TransaksiController extends Controller
         ], 200);
     }
 
+    public function indexKeranjang()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        $id_pengguna = $user->id_pengguna;
+        $transaksi = Transaksi::where('id_pengguna', $id_pengguna)
+            ->whereHas('DetailTransaksi', function ($query) {
+                $query->where('status_berlangsung', 'Keranjang');
+            })
+            ->with('DetailTransaksi', function ($query) {
+                $query->where('status_berlangsung', 'Keranjang');
+            })
+            ->with('Pengguna')
+            ->with('DetailTransaksi.Paket')
+            ->with('DetailTransaksi.Paket.PenyediaJasa')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transaksi retrieved successfully',
+            'data' => $transaksi,
+        ], 200);
+    }
 }
