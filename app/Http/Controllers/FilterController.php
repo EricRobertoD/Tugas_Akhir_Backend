@@ -1,7 +1,13 @@
-<?phpnamespace App\Http\Controllers;
+<?php
+
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PenyediaJasa;
+use App\Models\Jadwal;
+use App\Models\TanggalLibur;
+use App\Models\Transaksi;
+use App\Models\Paket;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,6 +21,7 @@ class FilterController extends Controller
             'start_time' => 'required',
             'end_time' => 'required',
             'date_time' => 'required',
+            'provinsi_penyedia' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -45,26 +52,27 @@ class FilterController extends Controller
                       ->where('tanggal_akhir', '>=', $date);
             })
             ->where(function ($query) use ($date, $startTime, $endTime) {
-                $query->where(function ($query) {
-                    $query->whereHas('Paket.DetailTransaksi.Transaksi', function ($query) {
-                        $query->whereNotNull('status_transaksi');
-                    })
-                    ->where(function ($query) use ($date, $startTime, $endTime) {
-                        $query->where(function ($query) use ($date) {
-                            $query->where('tanggal_pelaksanaan', '!=', $date);
-                        })
-                        ->orWhere(function ($query) use ($startTime, $endTime) {
-                            $query->where('tanggal_pelaksanaan', '=', $date)
-                                  ->where(function ($query) use ($startTime, $endTime) {
-                                      $query->where('jam_mulai', '>=', $endTime)
-                                            ->orWhere('jam_selesai', '<=', $startTime);
+                $query->whereHas('Paket.DetailTransaksi.Transaksi', function ($query) use ($date, $startTime, $endTime) {
+                    $query->where(function ($query) use ($date, $startTime, $endTime) {
+                        $query->where('status_transaksi', 'Sudah Bayar')
+                              ->where('tanggal_pelaksanaan', '=', $date)
+                              ->where(function ($query) use ($startTime, $endTime) {
+                                  $query->where(function ($query) use ($startTime, $endTime) {
+                                      $query->where('jam_mulai', '<=', $startTime)
+                                            ->where('jam_selesai', '>=', $startTime);
+                                  })
+                                  ->orWhere(function ($query) use ($startTime, $endTime) {
+                                      $query->where('jam_mulai', '<=', $endTime)
+                                            ->where('jam_selesai', '>=', $endTime);
+                                  })
+                                  ->orWhere(function ($query) use ($startTime, $endTime) {
+                                      $query->where('jam_mulai', '>=', $startTime)
+                                            ->where('jam_selesai', '<=', $endTime);
                                   });
-                        });
+                              });
                     });
-                })
-                ->orWhereDoesntHave('Paket.DetailTransaksi.Transaksi', function ($query) {
-                    $query->whereNotNull('status_transaksi');
-                });
+                }, '<=', 0)
+                ->orDoesntHave('Paket.DetailTransaksi.Transaksi');
             })
             ->whereHas('Paket', function ($query) use ($startBudget, $endBudget) {
                 $query->where('harga_paket', '>=', $startBudget)
