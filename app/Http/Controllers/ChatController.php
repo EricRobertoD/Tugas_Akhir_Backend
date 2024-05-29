@@ -33,8 +33,8 @@ class ChatController extends Controller
             'uid_sender' => $id_pengguna,
         ]);
 
-        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $id_pengguna))->toOthers();
-        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $chat->id_penyedia))->toOthers();
+        broadcast(new NotifyyFrontend($chat, 'channel-' . $id_pengguna))->toOthers();
+        broadcast(new NotifyyFrontend($chat, 'channel-' . $chat->id_penyedia))->toOthers();
 
         return response([
             'status' => 'success',
@@ -65,8 +65,8 @@ class ChatController extends Controller
             'uid_sender' => $id_penyedia,
         ]);
 
-        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $id_penyedia))->toOthers();
-        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $chat->id_pengguna))->toOthers();
+        broadcast(new NotifyyFrontend($chat, 'channel-' . $id_penyedia))->toOthers();
+        broadcast(new NotifyyFrontend($chat, 'channel-' . $chat->id_pengguna))->toOthers();
 
         return response([
             'status' => 'success',
@@ -74,6 +74,7 @@ class ChatController extends Controller
             'data' => $chat
         ], 201);
     }
+
 
     public function chatPengguna(Request $request)
     {
@@ -105,7 +106,7 @@ class ChatController extends Controller
             'data' => $chats
         ], 200);
     }
-    
+
 
     public function chatPenyedia(Request $request)
     {
@@ -157,7 +158,7 @@ class ChatController extends Controller
         ], 200);
     }
 
-    
+
     public function listPenggunaForPenyedia(Request $request)
     {
         $id_penyedia = auth()->user()->id_penyedia;
@@ -177,7 +178,7 @@ class ChatController extends Controller
         ], 200);
     }
 
-    
+
     public function storePenggunaFirst(Request $request)
     {
         $id_pengguna = auth()->user()->id_pengguna;
