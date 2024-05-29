@@ -27,6 +27,11 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::put('updateStatusDetailTransaksi/{updateStatusDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@updateStatus');
+});
+
 Route::middleware(['auth:sanctum', 'ability:penyedia'])->group(function(){
 Route::get('paket', 'App\Http\Controllers\PaketController@index');
 
@@ -39,7 +44,6 @@ Route::put('penyedia', 'App\Http\Controllers\AuthController@updatePenyedia');
 Route::post('updatePenyediaGambar', 'App\Http\Controllers\PenyediaController@updateGambar');
 
 Route::get('detailTransaksi', 'App\Http\Controllers\DetailTransaksiController@index');
-Route::put('updateStatusDetailTransaksi/{updateStatusDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@updateStatus');
 
 Route::get('ulasan', 'App\Http\Controllers\UlasanController@index');
 
@@ -79,7 +83,6 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     
     Route::post('/filter', 'App\Http\Controllers\FilterController@filter');
 
-    Route::put('updateStatusDetailTransaksi/{updateStatusDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@updateStatus');
     Route::post('ulasan', 'App\Http\Controllers\UlasanController@store');
 
     Route::post('chatPengguna', 'App\Http\Controllers\ChatController@storePengguna');
