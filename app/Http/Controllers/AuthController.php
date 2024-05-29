@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\forgotPassword;
+use App\Models\Admin;
 use App\Models\Pengguna;
 use App\Models\PenyediaJasa;
 use Illuminate\Http\Request;
@@ -270,5 +271,62 @@ class AuthController extends Controller
             'message' => 'Penyedia updated successfully',
             'data' => $penyedia,
         ], 200);
+    }
+
+
+    public function registerAdmin(Request $request)
+    {
+        $registerData = $request->all();
+
+        $validate = Validator::make($registerData, [
+            'nama_admin' => 'required',
+            'email_admin' => 'required|string|email|max:255|unique:admin|unique:pengguna,email_pengguna|unique:penyedia_jasa,email_penyedia',
+            'password' => 'required',
+        ]);
+
+        if ($validate->fails()) {
+            $errors = $validate->errors();
+            $response = [
+                'status' => 'error',
+                'message' => 'Registrasi gagal. Silakan periksa semua bagian yang ditandai.',
+                'errors' => $errors->toArray()
+            ];
+
+            return response()->json($response, 400);
+        }
+
+        $registerData['password'] = bcrypt($registerData['password']);
+
+        $admin = Admin::create($registerData);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Register Berhasil!.',
+            'data' => $admin
+        ], 200);
+    }
+
+    public function loginAdmin(Request $request)
+    {
+        $loginData = $request->all();
+        $email = $loginData['email'];
+
+        $admin = Admin::where('email_admin', $email)->first();
+
+        if ($admin && Auth::guard('admin')->attempt(['email_admin' => $email, 'password' => $loginData['password']])) {
+            $user = Auth::guard('admin')->user();
+            $token = $user->createToken('Authentication Token', ['admin'])->plainTextToken;
+
+            return response([
+                'message' => 'Authenticated as admin',
+                'data' => [
+                    'status' => 'success',
+                    'User' => $user,
+                    'token_type' => 'Bearer',
+                    'access_token' => $token,
+                ],
+            ]);
+        }
+
+        return response(['message' => 'Invalid credentials'], 401);
     }
 }

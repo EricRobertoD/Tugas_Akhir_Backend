@@ -10,6 +10,9 @@ Route::post('login', 'App\Http\Controllers\AuthController@login');
 Route::post('registerPenyedia', 'App\Http\Controllers\AuthController@registerPenyedia');
 Route::post('loginPenyedia', 'App\Http\Controllers\AuthController@loginPenyedia');
 
+Route::post('registerAdmin', 'App\Http\Controllers\AuthController@registerAdmin');
+Route::post('loginAdmin', 'App\Http\Controllers\AuthController@loginAdmin');
+
 Route::delete('gambar/{gambar}', 'App\Http\Controllers\GambarPortoController@delete');
 
 Route::post('logout', 'App\Http\Controllers\AuthController@logout');

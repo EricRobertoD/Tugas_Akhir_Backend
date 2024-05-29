@@ -43,7 +43,11 @@ return [
         'penyedia' => [
             'driver' => 'session',
             'provider' => 'penyedia',
-        ]
+        ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admin',
+        ],
     ],
 
     /*
@@ -71,7 +75,11 @@ return [
         'penyedia' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\PenyediaJasa::class),
-        ]
+        ],
+        'admin' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
+        ],
 
         // 'users' => [
         //     'driver' => 'database',
