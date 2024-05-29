@@ -32,25 +32,28 @@ class DetailTransaksiController extends Controller
 
 
     public function indexPengguna()
-    {
-        $user = auth()->user();
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not authenticated.',
-            ], 401);
-        }
-
-        $id_pengguna = $user->id_pengguna;
-        $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function ($query) use ($id_pengguna) {
-            $query->where('id_pengguna', $id_pengguna);
-        })->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')->get();
-
+{
+    $user = auth()->user();
+    if (!$user) {
         return response()->json([
-            'status' => 'success',
-            'message' => 'Detail transaksis retrieved successfully',
-            'data' => $detailTransaksis,
-        ], 200);
+            'message' => 'User not authenticated.',
+        ], 401);
     }
+
+    $id_pengguna = $user->id_pengguna;
+    $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function ($query) use ($id_pengguna) {
+        $query->where('id_pengguna', $id_pengguna);
+    })
+    ->whereNotNull('status_penyedia_jasa') // Add this condition
+    ->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')
+    ->get();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Detail transaksis retrieved successfully',
+        'data' => $detailTransaksis,
+    ], 200);
+}
 
     public function store(Request $request)
     {
