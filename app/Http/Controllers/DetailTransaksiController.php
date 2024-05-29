@@ -225,4 +225,33 @@ class DetailTransaksiController extends Controller
             'data' => $transaksi,
         ], 200);
     }
+    
+    public function updateStatusBerlangsung(Request $request, $id)
+    {
+        $transaksi = DetailTransaksi::find($id);
+
+        if (!$transaksi) {
+            return response()->json([
+                'message' => 'Detail Transaksi not found.',
+            ], 404);
+        }
+        $validator = Validator::make($request->all(), [
+            'status_berlangsung' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+        $transaksi->status_berlangsung = $request->input('status_berlangsung');
+        $transaksi->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transaksi updated successfully',
+            'data' => $transaksi,
+        ], 200);
+    }
 }

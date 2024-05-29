@@ -97,4 +97,5 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::get('/keranjang', 'App\Http\Controllers\DetailTransaksiController@indexKeranjang');
     Route::delete('/keranjang/{id_detail_transaksi}', 'App\Http\Controllers\DetailTransaksiController@deleteKeranjang');
     
+    Route::put('updateBerlangsung/{updateBerlangsung}', 'App\Http\Controllers\DetailTransaksiController@updateStatusBerlangsung');
 });
