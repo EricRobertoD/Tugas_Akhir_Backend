@@ -109,6 +109,7 @@ class SaldoController extends Controller
 
         $validator = Validator::make($request->all(), [
             'total' => 'required|numeric|min:0',
+            'nomor_rekening' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -125,20 +126,14 @@ class SaldoController extends Controller
             ], 400);
         }
 
-        if ($user->id_penyedia) {
-            $user->saldo -= $total;
-            $user->save();
-        } else if ($user->id_pengguna) {
-            $user->saldo -= $total;
-            $user->save();
-        }
-
         $saldo = Saldo::create([
             'id_penyedia' => $user->id_penyedia ?? null,
             'id_pengguna' => $user->id_pengguna ?? null,
             'jenis' => 'withdraw',
             'total' => $total,
-            'tanggal'=>Carbon::today()->format('Y-m-d'),
+            'tanggal' => Carbon::today()->format('Y-m-d'),
+            'nomor_rekening' => $request->input('nomor_rekening'),
+            'status' => 'pending',
         ]);
 
         return response()->json([
@@ -173,6 +168,32 @@ class SaldoController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Deposit confirmed successfully',
+            'data' => $saldo,
+        ], 200);
+    }
+
+    public function confirmWithdraw($id)
+    {
+        $saldo = Saldo::find($id);
+        if (!$saldo || $saldo->jenis !== 'withdraw' || $saldo->status !== 'pending') {
+            return response()->json([
+                'message' => 'Invalid withdraw transaction.',
+            ], 400);
+        }
+
+        $user = $saldo->id_penyedia ? $saldo->penyedia : ($saldo->id_pengguna ? $saldo->pengguna : null);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $saldo->status = 'success';
+        $saldo->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Withdraw confirmed successfully',
             'data' => $saldo,
         ], 200);
     }
