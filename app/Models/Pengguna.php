@@ -21,6 +21,7 @@ class Pengguna extends Authenticatable
         'nomor_telepon_pengguna',
         'nomor_whatsapp_pengguna',
         'alamat_pengguna',
+        'saldo',
     ];
 
     /**
@@ -48,4 +49,8 @@ class Pengguna extends Authenticatable
         return $this->hasMany(Chat::class, 'id_pengguna');
     }
 
+    public function Saldo()
+    {
+        return $this->hasMany(Saldo::class, 'id_pengguna');
+    }
 }

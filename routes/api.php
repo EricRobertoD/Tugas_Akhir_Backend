@@ -33,6 +33,12 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('updateStatusDetailTransaksi/{updateStatusDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@updateStatus');
+
+    Route::post('saldoDeposit', 'App\Http\Controllers\SaldoController@deposit');
+    Route::post('saldoWithdraw', 'App\Http\Controllers\SaldoController@withdraw');
+
+    Route::post('confirmDeposit', 'App\Http\Controllers\SaldoController@confirmDeposit');
+
 });
 
 Route::middleware(['auth:sanctum', 'ability:penyedia'])->group(function(){
@@ -69,6 +75,7 @@ Route::post('chatPenyedia', 'App\Http\Controllers\ChatController@storePenyedia')
 Route::post('isiChatPenyedia', 'App\Http\Controllers\ChatController@chatPenyedia');
 Route::get('listChatPenyedia', 'App\Http\Controllers\ChatController@listPenggunaForPenyedia');
 
+Route::get('saldoPenyedia', 'App\Http\Controllers\SaldoController@indexPenyedia');
 
 });
 
@@ -101,4 +108,6 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::delete('/keranjang/{id_detail_transaksi}', 'App\Http\Controllers\DetailTransaksiController@deleteKeranjang');
     
     Route::put('updateBerlangsung/{updateBerlangsung}', 'App\Http\Controllers\DetailTransaksiController@updateStatusBerlangsung');
+
+    Route::get('saldoPengguna', 'App\Http\Controllers\SaldoController@indexPengguna');
 });

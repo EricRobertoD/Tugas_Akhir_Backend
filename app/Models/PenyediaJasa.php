@@ -25,6 +25,7 @@ class PenyediaJasa extends Authenticatable
         'nama_role',
         'gambar_penyedia',
         'deskripsi_penyedia',
+        'saldo',
     ];
 
     protected $hidden = [
@@ -56,5 +57,10 @@ class PenyediaJasa extends Authenticatable
     Public function Chat()
     {
         return $this->hasMany(Chat::class, 'id_penyedia');
+    }
+    
+    public function Saldo()
+    {
+        return $this->hasMany(Saldo::class, 'id_penyedia');
     }
 }
