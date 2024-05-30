@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Saldo;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -87,6 +88,7 @@ class SaldoController extends Controller
             'total' => $total,
             'gambar_saldo' => $fileNameToStore,
             'status' => 'pending',
+            'tanggal' => Carbon::today()->format('Y-m-d'),
         ]);
 
         return response()->json([
@@ -136,6 +138,7 @@ class SaldoController extends Controller
             'id_pengguna' => $user->id_pengguna ?? null,
             'jenis' => 'withdraw',
             'total' => $total,
+            'tanggal'=>Carbon::today()->format('Y-m-d'),
         ]);
 
         return response()->json([
