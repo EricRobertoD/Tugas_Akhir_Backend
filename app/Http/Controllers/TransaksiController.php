@@ -62,57 +62,41 @@ class TransaksiController extends Controller
     }
 
     public function updateStatus(Request $request, $id)
-{
-    $transaksi = Transaksi::find($id);
+    {
+        $transaksi = Transaksi::find($id);
 
-    if (!$transaksi) {
-        return response()->json([
-            'message' => 'Transaksi not found.',
-        ], 404);
-    }
-
-    $validator = Validator::make($request->all(), [
-        'status_transaksi' => 'required',
-        'bukti_bayar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation failed',
-            'errors' => $validator->errors(),
-        ], 400);
-    }
-
-    if ($request->hasFile('bukti_bayar')) {
-        $filenameWithExt = $request->file('bukti_bayar')->getClientOriginalName();
-        $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-        $extension = $request->file('bukti_bayar')->getClientOriginalExtension();
-        $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-        $path = $request->file('bukti_bayar')->storeAs('gambar', $fileNameToStore, 'public');
-
-        if ($transaksi->bukti_bayar !== 'noimage.jpg' && !is_null($transaksi->bukti_bayar)) {
-            Storage::disk('public')->delete('gambar/' . $transaksi->bukti_bayar);
+        if (!$transaksi) {
+            return response()->json([
+                'message' => 'Transaksi not found.',
+            ], 404);
         }
 
-        $transaksi->bukti_bayar = $fileNameToStore;
+        $user = $transaksi->pengguna;
+        $totalHarga = $transaksi->total_harga;
+
+        if ($user->saldo < $totalHarga) {
+            return response()->json([
+                'message' => 'Saldo anda kurang.',
+            ], 400);
+        }
+
+        $user->saldo -= $totalHarga;
+        $user->save();
+
+        $transaksi->status_transaksi = 'Sudah Bayar';
+        $transaksi->tanggal_pemesanan = Carbon::today()->format('Y-m-d');
+        $transaksi->save();
+
+        $detailTransaksis = $transaksi->detailTransaksi;
+        foreach ($detailTransaksis as $detailTransaksi) {
+            $detailTransaksi->status_penyedia_jasa = 'Sedang Menghubungkan';
+            $detailTransaksi->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transaksi updated successfully',
+            'data' => $transaksi,
+        ], 200);
     }
-
-    $transaksi->status_transaksi = $request->input('status_transaksi');
-    $transaksi->tanggal_pemesanan = Carbon::today()->format('Y-m-d');
-    $transaksi->save();
-
-    // Update related detail_transaksi entries
-    $detailTransaksis = $transaksi->detailTransaksi;
-    foreach ($detailTransaksis as $detailTransaksi) {
-        $detailTransaksi->status_penyedia_jasa = 'Sedang Menghubungkan';
-        $detailTransaksi->save();
-    }
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Transaksi updated successfully',
-        'data' => $transaksi,
-    ], 200);
-}
-
 }
