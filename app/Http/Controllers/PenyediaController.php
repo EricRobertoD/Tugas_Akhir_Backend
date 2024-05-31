@@ -36,8 +36,7 @@ class PenyediaController extends Controller
             'id_penyedia' => 'required',
         ]);
 
-        $penyedia = PenyediaJasa::where('id_penyedia', $request->input('id_penyedia'))->with('GambarPorto')->with('Paket')->first();
-
+        $penyedia = PenyediaJasa::where('id_penyedia', $request->input('id_penyedia'))->with('GambarPorto')->with('Paket')->with(['Paket.DetailTransaksi.Ulasan'])->first();
         return response()->json([
             'status' => 'success',
             'message' => 'Penyedia retrieved successfully',

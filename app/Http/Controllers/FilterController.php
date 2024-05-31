@@ -76,7 +76,7 @@ class FilterController extends Controller
             $penyediaJasa->where('provinsi_penyedia', $provinsiPenyedia);
         }
 
-        $result = $penyediaJasa->get();
+        $result = $penyediaJasa->with(['Paket.DetailTransaksi.Ulasan'])->get();
 
         return response()->json($result);
     }

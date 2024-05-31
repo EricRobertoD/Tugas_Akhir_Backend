@@ -316,7 +316,7 @@ public function cancelDetailTransaksi(Request $request, $id)
     $penggunaSaldo->status = 'berhasil';
     $penggunaSaldo->save();
 
-    $detailTransaksi->status_penyedia_jasa = 'Belum Bayar';
+    $detailTransaksi->status_penyedia_jasa = 'Transaksi dibatalkan';
     $detailTransaksi->save();
 
     return response()->json([

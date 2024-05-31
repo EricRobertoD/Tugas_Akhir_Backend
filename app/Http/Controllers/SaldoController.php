@@ -122,7 +122,7 @@ class SaldoController extends Controller
         $total = $request->input('total');
         if ($user->saldo < $total) {
             return response()->json([
-                'message' => 'Insufficient balance.',
+                'message' => 'Saldo tidak cukup.',
             ], 400);
         }
 
