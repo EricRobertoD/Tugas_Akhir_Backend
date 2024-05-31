@@ -267,17 +267,8 @@ class DetailTransaksiController extends Controller
         ], 404);
     }
 
-    $transaksi = $detailTransaksi->transaksi;
-    $pengguna = $transaksi->pengguna;
     $penyediaJasa = $detailTransaksi->paket->penyediaJasa;
     $subtotal = $detailTransaksi->subtotal;
-
-    if ($pengguna->saldo < $subtotal) {
-        return response()->json([
-            'message' => 'Saldo pengguna kurang.',
-        ], 400);
-    }
-
 
     $penyediaJasa->saldo += $subtotal;
     $penyediaJasa->save();
