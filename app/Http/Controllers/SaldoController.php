@@ -162,7 +162,7 @@ class SaldoController extends Controller
         $user->saldo += $saldo->total;
         $user->save();
 
-        $saldo->status = 'success';
+        $saldo->status = 'berhasil';
         $saldo->save();
 
         return response()->json([

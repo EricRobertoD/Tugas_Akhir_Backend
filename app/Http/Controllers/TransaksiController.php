@@ -89,6 +89,7 @@ class TransaksiController extends Controller
         $saldo->total = $totalHarga;
         $saldo->jenis = 'Pembelian';
         $saldo->tanggal = Carbon::today()->format('Y-m-d');
+        $saldo->status = 'berhasil';
         $saldo->save();
     
         $transaksi->status_transaksi = 'Sudah Bayar';
