@@ -77,6 +77,9 @@ Route::get('listChatPenyedia', 'App\Http\Controllers\ChatController@listPengguna
 
 Route::get('saldoPenyedia', 'App\Http\Controllers\SaldoController@indexPenyedia');
 
+Route::put('confirmDetailTransaksi/{confirmDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@confirmDetailTransaksi');
+Route::put('cancelDetailTransaksi/{cancelDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@cancelDetailTransaksi');
+
 });
 
 

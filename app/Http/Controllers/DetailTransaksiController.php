@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailTransaksi;
+use App\Models\Saldo;
 use App\Models\Transaksi;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -254,4 +256,83 @@ class DetailTransaksiController extends Controller
             'data' => $transaksi,
         ], 200);
     }
+
+    public function confirmDetailTransaksi(Request $request, $id)
+{
+    $detailTransaksi = DetailTransaksi::find($id);
+    
+    if (!$detailTransaksi) {
+        return response()->json([
+            'message' => 'DetailTransaksi not found.',
+        ], 404);
+    }
+
+    $transaksi = $detailTransaksi->transaksi;
+    $pengguna = $transaksi->pengguna;
+    $penyediaJasa = $detailTransaksi->paket->penyediaJasa;
+    $subtotal = $detailTransaksi->subtotal;
+
+    if ($pengguna->saldo < $subtotal) {
+        return response()->json([
+            'message' => 'Saldo pengguna kurang.',
+        ], 400);
+    }
+
+
+    $penyediaJasa->saldo += $subtotal;
+    $penyediaJasa->save();
+
+    $penyediaSaldo = new Saldo();
+    $penyediaSaldo->id_penyedia = $penyediaJasa->id_penyedia;
+    $penyediaSaldo->total = $subtotal;
+    $penyediaSaldo->jenis = 'Penjualan';
+    $penyediaSaldo->tanggal = Carbon::today()->format('Y-m-d');
+    $penyediaSaldo->status = 'berhasil';
+    $penyediaSaldo->save();
+
+    $detailTransaksi->status_penyedia_jasa = 'Sedang bekerja sama dengan pelanggan';
+    $detailTransaksi->save();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'DetailTransaksi confirmed successfully',
+        'data' => $detailTransaksi,
+    ], 200);
+}
+
+public function cancelDetailTransaksi(Request $request, $id)
+{
+    $detailTransaksi = DetailTransaksi::find($id);
+
+    if (!$detailTransaksi) {
+        return response()->json([
+            'message' => 'DetailTransaksi not found.',
+        ], 404);
+    }
+
+    $transaksi = $detailTransaksi->transaksi;
+    $pengguna = $transaksi->pengguna;
+    $subtotal = $detailTransaksi->subtotal;
+
+    $pengguna->saldo += $subtotal;
+    $pengguna->save();
+
+    $penggunaSaldo = new Saldo();
+    $penggunaSaldo->id_pengguna = $pengguna->id_pengguna;
+    $penggunaSaldo->total = $subtotal;
+    $penggunaSaldo->jenis = 'Refund';
+    $penggunaSaldo->tanggal = Carbon::today()->format('Y-m-d');
+    $penggunaSaldo->status = 'berhasil';
+    $penggunaSaldo->save();
+
+    $detailTransaksi->status_penyedia_jasa = 'Belum Bayar';
+    $detailTransaksi->save();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'DetailTransaksi canceled successfully',
+        'data' => $detailTransaksi,
+    ], 200);
+}
+
 }

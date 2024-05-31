@@ -61,6 +61,7 @@ class TransaksiController extends Controller
             'data' => $transaksi
         ], 201);
     }
+
     public function updateStatus(Request $request, $id)
     {
         $transaksi = Transaksi::find($id);
@@ -83,7 +84,6 @@ class TransaksiController extends Controller
         $user->saldo -= $totalHarga;
         $user->save();
     
-        // Store in saldo with jenis "Pembelian"
         $saldo = new Saldo();
         $saldo->id_pengguna = $user->id_pengguna;
         $saldo->total = $totalHarga;
