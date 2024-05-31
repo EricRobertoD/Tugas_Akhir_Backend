@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Saldo;
 use App\Models\Transaksi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -60,43 +61,51 @@ class TransaksiController extends Controller
             'data' => $transaksi
         ], 201);
     }
-
     public function updateStatus(Request $request, $id)
     {
         $transaksi = Transaksi::find($id);
-
+    
         if (!$transaksi) {
             return response()->json([
                 'message' => 'Transaksi not found.',
             ], 404);
         }
-
+    
         $user = $transaksi->pengguna;
         $totalHarga = $transaksi->total_harga;
-
+    
         if ($user->saldo < $totalHarga) {
             return response()->json([
                 'message' => 'Saldo anda kurang.',
             ], 400);
         }
-
+    
         $user->saldo -= $totalHarga;
         $user->save();
-
+    
+        // Store in saldo with jenis "Pembelian"
+        $saldo = new Saldo();
+        $saldo->id_pengguna = $user->id_pengguna;
+        $saldo->jumlah = $totalHarga;
+        $saldo->jenis = 'Pembelian';
+        $saldo->tanggal_transaksi = Carbon::now();
+        $saldo->save();
+    
         $transaksi->status_transaksi = 'Sudah Bayar';
         $transaksi->tanggal_pemesanan = Carbon::today()->format('Y-m-d');
         $transaksi->save();
-
+    
         $detailTransaksis = $transaksi->detailTransaksi;
         foreach ($detailTransaksis as $detailTransaksi) {
             $detailTransaksi->status_penyedia_jasa = 'Sedang Menghubungkan';
             $detailTransaksi->save();
         }
-
+    
         return response()->json([
             'status' => 'success',
             'message' => 'Transaksi updated successfully',
             'data' => $transaksi,
         ], 200);
     }
+    
 }
