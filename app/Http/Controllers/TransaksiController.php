@@ -86,7 +86,7 @@ class TransaksiController extends Controller
         // Store in saldo with jenis "Pembelian"
         $saldo = new Saldo();
         $saldo->id_pengguna = $user->id_pengguna;
-        $saldo->jumlah = $totalHarga;
+        $saldo->total = $totalHarga;
         $saldo->jenis = 'Pembelian';
         $saldo->tanggal_transaksi = Carbon::now();
         $saldo->save();
