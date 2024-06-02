@@ -210,8 +210,11 @@ class SaldoController extends Controller
             $fileNameToStore = 'noimage.jpg';
         }
 
+        
+        $user->saldo -= $saldo->total;
+        $user->save();
+        $saldo->status = 'berhasil';
         $saldo->gambar_saldo = $fileNameToStore;
-        $saldo->status = 'success';
         $saldo->save();
 
         return response()->json([
