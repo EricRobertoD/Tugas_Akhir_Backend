@@ -225,7 +225,7 @@ class SaldoController extends Controller
     {
         $saldo = Saldo::where('status', 'pending')
                         ->where('jenis', 'withdraw')
-                        ->with(['penyedia', 'pengguna'])
+                        ->with(['PenyediaJasa', 'Pengguna'])
                         ->get();
 
         return response()->json([
@@ -239,7 +239,7 @@ class SaldoController extends Controller
     {
         $saldo = Saldo::where('status', 'pending')
                         ->where('jenis', 'deposit')
-                        ->with(['penyedia', 'pengguna'])
+                        ->with(['PenyediaJasa', 'Pengguna'])
                         ->get();
 
         return response()->json([
