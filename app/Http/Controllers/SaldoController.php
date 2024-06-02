@@ -248,4 +248,43 @@ class SaldoController extends Controller
             'data' => $saldo,
         ], 200);
     }
+
+    
+    public function rejectDeposit($id)
+    {
+        $saldo = Saldo::find($id);
+        if (!$saldo || $saldo->jenis !== 'deposit' || $saldo->status !== 'pending') {
+            return response()->json([
+                'message' => 'Invalid deposit transaction.',
+            ], 400);
+        }
+
+        $saldo->status = 'gagal';
+        $saldo->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Deposit rejected successfully',
+            'data' => $saldo,
+        ], 200);
+    }
+
+    public function rejectWithdraw($id)
+    {
+        $saldo = Saldo::find($id);
+        if (!$saldo || $saldo->jenis !== 'withdraw' || $saldo->status !== 'pending') {
+            return response()->json([
+                'message' => 'Invalid withdraw transaction.',
+            ], 400);
+        }
+
+        $saldo->status = 'gagal';
+        $saldo->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Withdraw rejected successfully',
+            'data' => $saldo,
+        ], 200);
+    }
 }

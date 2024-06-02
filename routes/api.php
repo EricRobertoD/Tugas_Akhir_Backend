@@ -120,7 +120,10 @@ Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
 
     Route::post('confirmWithdraw/{id_saldo}', 'App\Http\Controllers\SaldoController@confirmWithdraw');
     Route::post('confirmDeposit/{id_saldo}', 'App\Http\Controllers\SaldoController@confirmDeposit');
+    Route::post('rejectWithdraw/{id_saldo}', 'App\Http\Controllers\SaldoController@rejectWithdraw');
+    Route::post('rejectDeposit/{id_saldo}', 'App\Http\Controllers\SaldoController@rejectDeposit');
 
     Route::get('pendingWithdraw', 'App\Http\Controllers\SaldoController@indexPendingWithdraw');
     Route::get('pendingDeposit', 'App\Http\Controllers\SaldoController@indexPendingDeposit');
+
 });
