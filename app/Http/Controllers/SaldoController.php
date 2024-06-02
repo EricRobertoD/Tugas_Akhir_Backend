@@ -152,7 +152,7 @@ class SaldoController extends Controller
             ], 400);
         }
 
-        $user = $saldo->id_penyedia ? $saldo->penyedia_jasa : ($saldo->id_pengguna ? $saldo->pengguna : null);
+        $user = $saldo->id_penyedia ? $saldo->PenyediaJasa : ($saldo->id_pengguna ? $saldo->pengguna : null);
         if (!$user) {
             return response()->json([
                 'message' => 'User not found.',
@@ -181,7 +181,7 @@ class SaldoController extends Controller
             ], 400);
         }
 
-        $user = $saldo->id_penyedia ? $saldo->penyedia_jasa : ($saldo->id_pengguna ? $saldo->pengguna : null);
+        $user = $saldo->id_penyedia ? $saldo->PenyediaJasa : ($saldo->id_pengguna ? $saldo->pengguna : null);
         if (!$user) {
             return response()->json([
                 'message' => 'User not found.',
