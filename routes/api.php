@@ -114,3 +114,10 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
 
     Route::get('saldoPengguna', 'App\Http\Controllers\SaldoController@indexPengguna');
 });
+
+Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
+    Route::get('admin', 'App\Http\Controllers\AdminController@index');
+
+    Route::post('confirmWithdraw', 'App\Http\Controllers\SaldoController@confirmWithdraw');
+    Route::post('confirmDeposit', 'App\Http\Controllers\SaldoController@confirmDeposit');
+});

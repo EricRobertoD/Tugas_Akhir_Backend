@@ -188,6 +188,28 @@ class SaldoController extends Controller
             ], 404);
         }
 
+        $validator = Validator::make($request->all(), [
+            'gambar_saldo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+        
+        if ($request->hasFile('gambar_saldo')) {
+            $filenameWithExt = $request->file('gambar_saldo')->getClientOriginalName();
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $extension = $request->file('gambar_saldo')->getClientOriginalExtension();
+            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+            $path = $request->file('gambar_saldo')->storeAs('gambar_saldo', $fileNameToStore, 'public');
+        } else {
+            $fileNameToStore = 'noimage.jpg';
+        }
+
+        $saldo->gambar_saldo = $fileNameToStore;
         $saldo->status = 'success';
         $saldo->save();
 
