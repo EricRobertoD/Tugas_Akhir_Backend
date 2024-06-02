@@ -172,7 +172,8 @@ class SaldoController extends Controller
         ], 200);
     }
 
-    public function confirmWithdraw($request, $id)
+
+    public function confirmWithdraw(Request $request, $id)
     {
         $saldo = Saldo::find($id);
         if (!$saldo || $saldo->jenis !== 'withdraw' || $saldo->status !== 'pending') {
@@ -198,7 +199,7 @@ class SaldoController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-        
+
         if ($request->hasFile('gambar_saldo')) {
             $filenameWithExt = $request->file('gambar_saldo')->getClientOriginalName();
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
@@ -221,12 +222,13 @@ class SaldoController extends Controller
     }
 
 
+
     public function indexPendingWithdraw()
     {
         $saldo = Saldo::where('status', 'pending')
-                        ->where('jenis', 'withdraw')
-                        ->with(['PenyediaJasa', 'Pengguna'])
-                        ->get();
+            ->where('jenis', 'withdraw')
+            ->with(['PenyediaJasa', 'Pengguna'])
+            ->get();
 
         return response()->json([
             'status' => 'success',
@@ -238,9 +240,9 @@ class SaldoController extends Controller
     public function indexPendingDeposit()
     {
         $saldo = Saldo::where('status', 'pending')
-                        ->where('jenis', 'deposit')
-                        ->with(['PenyediaJasa', 'Pengguna'])
-                        ->get();
+            ->where('jenis', 'deposit')
+            ->with(['PenyediaJasa', 'Pengguna'])
+            ->get();
 
         return response()->json([
             'status' => 'success',
@@ -249,7 +251,7 @@ class SaldoController extends Controller
         ], 200);
     }
 
-    
+
     public function rejectDeposit($id)
     {
         $saldo = Saldo::find($id);
