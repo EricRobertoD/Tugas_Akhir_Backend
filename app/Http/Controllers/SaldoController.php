@@ -172,7 +172,7 @@ class SaldoController extends Controller
         ], 200);
     }
 
-    public function confirmWithdraw($id)
+    public function confirmWithdraw($request, $id)
     {
         $saldo = Saldo::find($id);
         if (!$saldo || $saldo->jenis !== 'withdraw' || $saldo->status !== 'pending') {
@@ -216,6 +216,35 @@ class SaldoController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Withdraw confirmed successfully',
+            'data' => $saldo,
+        ], 200);
+    }
+
+
+    public function indexPendingWithdraw()
+    {
+        $saldo = Saldo::where('status', 'pending')
+                        ->where('jenis', 'withdraw')
+                        ->with(['penyedia', 'pengguna'])
+                        ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pending withdraws retrieved successfully',
+            'data' => $saldo,
+        ], 200);
+    }
+
+    public function indexPendingDeposit()
+    {
+        $saldo = Saldo::where('status', 'pending')
+                        ->where('jenis', 'deposit')
+                        ->with(['penyedia', 'pengguna'])
+                        ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pending deposits retrieved successfully',
             'data' => $saldo,
         ], 200);
     }
