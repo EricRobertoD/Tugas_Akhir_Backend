@@ -131,6 +131,8 @@ Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
     Route::get('eventCount', 'App\Http\Controllers\AnalyticsController@getEventCountData');
     Route::get('newVsReturning', 'App\Http\Controllers\AnalyticsController@getNewVsReturningUsers');
 
+    Route::get('topPengguna', 'App\Http\Controllers\LaporanController@top5PenggunaWithMostTransaksi');
+
 
 
 });
