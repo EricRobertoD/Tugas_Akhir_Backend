@@ -29,9 +29,16 @@ class GoogleAnalyticsService
             "universe_domain" => getenv('universe_domain')
         ];
     
-        $this->client = new BetaAnalyticsDataClient([
-            'credentials' => $credentials
-        ]);
+        // Log the environment variables
+        Log::info('Environment Variables:', $credentials);
+    
+        // Check for any missing values
+        foreach ($credentials as $key => $value) {
+            if ($value === false) {
+                throw new \Exception("Environment variable for $key not set");
+            }
+        }
+    
     }
 
 
