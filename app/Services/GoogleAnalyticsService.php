@@ -16,7 +16,7 @@ class GoogleAnalyticsService
     public function __construct()
     {
         $credentials = [
-            "type" => getenv('type'),
+            "type" =>"service_account",
             "project_id" => getenv('project_id'),
             "private_key_id" => getenv('private_key_id'),
             "private_key" => getenv('private_key'),
@@ -29,15 +29,16 @@ class GoogleAnalyticsService
             "universe_domain" => getenv('universe_domain')
         ];
     
-        // Log the environment variables
-        Log::info('Environment Variables:', $credentials);
     
-        // Check for any missing values
         foreach ($credentials as $key => $value) {
             if ($value === false) {
                 throw new \Exception("Environment variable for $key not set");
             }
         }
+        
+        $this->client = new BetaAnalyticsDataClient([
+            'credentials' => $credentials
+        ]);
     
     }
 
