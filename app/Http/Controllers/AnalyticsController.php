@@ -13,12 +13,6 @@ class AnalyticsController extends Controller
     {
         $this->googleAnalyticsService = $googleAnalyticsService;
     }
-
-    public function getAllRawData()
-    {
-        $data = $this->googleAnalyticsService->getAllRawData();
-        return response()->json($data);
-    }
     
     public function getRealTimeData()
     {
