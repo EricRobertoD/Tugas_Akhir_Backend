@@ -35,44 +35,62 @@ class GoogleAnalyticsService
                 throw new \Exception("Environment variable for $key not set");
             }
         }
-        
+
         $this->client = new BetaAnalyticsDataClient([
             'credentials' => $credentials
         ]);
     
     }
-
-
-    public function getAllRawData()
+    
+    public function getRealTimeData()
     {
         $PROPERTY_ID = 'properties/443953748';
 
+        $dimensions = [
+            (new Dimension())->setName('minutesAgo'),
+        ];
+
+        $metrics = [
+            (new Metric())->setName('activeUsers'),
+        ];
+
+        $request = [
+            'property' => $PROPERTY_ID,
+            'dimensions' => $dimensions,
+            'metrics' => $metrics,
+        ];
+
+        try {
+            $response = $this->client->runRealtimeReport($request);
+            return json_decode($response->serializeToJsonString(), true);
+        } catch (\Exception $e) {
+            Log::error('Error fetching real-time data:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Failed to get real-time data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    
+    public function getLateTimeData()
+    {
+        $PROPERTY_ID = 'properties/443953748';
+
+        $dimensions = [
+            (new Dimension())->setName('date'),
+        ];
+
+        $metrics = [
+            (new Metric())->setName('activeUsers'),
+        ];
+
+        $requests = [];
         $dateRanges = [
             new DateRange(['start_date' => '30daysAgo', 'end_date' => 'today']),
-            new DateRange(['start_date' => '7daysAgo', 'end_date' => 'today']),
-            new DateRange(['start_date' => 'today', 'end_date' => 'today'])
+            new DateRange(['start_date' => '15daysAgo', 'end_date' => 'today']),
+            new DateRange(['start_date' => '3daysAgo', 'end_date' => 'today']),
         ];
-
-        // Define dimensions
-        $dimensions = [
-            (new Dimension())->setName('eventName'),
-            (new Dimension())->setName('customEvent:role'),
-            (new Dimension())->setName('pagePath'),
-            (new Dimension())->setName('pageTitle'),
-            (new Dimension())->setName('date'),
-            (new Dimension())->setName('sessionSource'),
-        ];
-
-        // Define metrics
-        $metrics = [
-            (new Metric())->setName('eventCount'),
-            (new Metric())->setName('sessions'),
-            (new Metric())->setName('totalUsers'),
-            (new Metric())->setName('newUsers'),
-        ];
-
-        // Prepare the request array
-        $requests = [];
         foreach ($dateRanges as $dateRange) {
             $requests[] = [
                 'property' => $PROPERTY_ID,
@@ -82,7 +100,6 @@ class GoogleAnalyticsService
             ];
         }
 
-        // Send requests and collect responses
         $responses = [];
         foreach ($requests as $request) {
             $response = $this->client->runReport($request);
@@ -91,4 +108,10 @@ class GoogleAnalyticsService
 
         return $responses;
     }
+
+    
+
+    //unifiedScreenName
+    //fullPageUrl
+    //unified
 }

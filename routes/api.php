@@ -126,6 +126,9 @@ Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
     Route::get('pendingWithdraw', 'App\Http\Controllers\SaldoController@indexPendingWithdraw');
     Route::get('pendingDeposit', 'App\Http\Controllers\SaldoController@indexPendingDeposit');
 
-    Route::get('login-stats', 'App\Http\Controllers\AnalyticsController@getAllRawData');
+    Route::get('loginReal', 'App\Http\Controllers\AnalyticsController@getRealtimeData');
+    Route::get('loginLate', 'App\Http\Controllers\AnalyticsController@getLateTimeData');
+
+
 
 });
