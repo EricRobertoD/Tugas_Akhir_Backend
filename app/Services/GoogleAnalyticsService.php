@@ -15,11 +15,13 @@ class GoogleAnalyticsService
 
     public function __construct()
     {
+        $privateKey = str_replace("\\n", "\n", getenv('private_key'));
+
         $credentials = [
             "type" =>"service_account",
             "project_id" => getenv('project_id'),
             "private_key_id" => getenv('private_key_id'),
-            "private_key" => getenv('private_key'),
+            "private_key" => $privateKey,
             "client_email" => getenv('client_email'),
             "client_id" => getenv('client_id'),
             "auth_uri" => getenv('auth_uri'),
