@@ -21,7 +21,7 @@ COPY . .
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-scripts
 RUN composer require pusher/pusher-php-server
-RUN composer require google/apiclient
+RUN composer require google/analytics-data
 RUN php artisan storage:link
 
 # Expose the port
