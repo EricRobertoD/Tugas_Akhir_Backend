@@ -31,4 +31,16 @@ class AnalyticsController extends Controller
         $data = $this->googleAnalyticsService->getLateTimeData();
         return response()->json($data);
     }
+
+    public function getEventCountData()
+    {
+        $data = $this->googleAnalyticsService->getEventCountData();
+        return response()->json($data);
+    }
+
+    public function getNewVsReturningUsers()
+    {
+        $data = $this->googleAnalyticsService->getNewVsReturningUsers();
+        return response()->json($data);
+    }
 }

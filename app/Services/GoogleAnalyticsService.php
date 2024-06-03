@@ -18,7 +18,7 @@ class GoogleAnalyticsService
         $privateKey = str_replace("\\n", "\n", getenv('private_key'));
 
         $credentials = [
-            "type" =>"service_account",
+            "type" => "service_account",
             "project_id" => getenv('project_id'),
             "private_key_id" => getenv('private_key_id'),
             "private_key" => $privateKey,
@@ -30,8 +30,7 @@ class GoogleAnalyticsService
             "client_x509_cert_url" => getenv('client_x509_cert_url'),
             "universe_domain" => getenv('universe_domain')
         ];
-    
-    
+
         foreach ($credentials as $key => $value) {
             if ($value === false) {
                 throw new \Exception("Environment variable for $key not set");
@@ -41,9 +40,8 @@ class GoogleAnalyticsService
         $this->client = new BetaAnalyticsDataClient([
             'credentials' => $credentials
         ]);
-    
     }
-    
+
     public function getRealTimeData()
     {
         $PROPERTY_ID = 'properties/443953748';
@@ -73,8 +71,7 @@ class GoogleAnalyticsService
             ], 500);
         }
     }
-    
-    
+
     public function getLateTimeData()
     {
         $PROPERTY_ID = 'properties/443953748';
@@ -111,9 +108,72 @@ class GoogleAnalyticsService
         return $responses;
     }
 
-    
+    public function getEventCountData()
+    {
+        $PROPERTY_ID = 'properties/443953748';
 
-    //unifiedScreenName
-    //fullPageUrl
-    //unified
+        $dimensions = [
+            (new Dimension())->setName('eventName'),
+        ];
+
+        $metrics = [
+            (new Metric())->setName('eventCount'),
+        ];
+
+        $request = [
+            'property' => $PROPERTY_ID,
+            'dimensions' => $dimensions,
+            'metrics' => $metrics,
+            'dateRanges' => [
+                new DateRange(['start_date' => '30daysAgo', 'end_date' => 'today'])
+            ]
+        ];
+
+        try {
+            $response = $this->client->runReport($request);
+            return json_decode($response->serializeToJsonString(), true);
+        } catch (\Exception $e) {
+            Log::error('Error fetching event count data:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Failed to get event count data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getNewVsReturningUsers()
+    {
+        $PROPERTY_ID = 'properties/443953748';
+
+        $dimensions = [
+            (new Dimension())->setName('newVsReturning'),
+        ];
+
+        $metrics = [
+            (new Metric())->setName('activeUsers'),
+        ];
+
+        $request = [
+            'property' => $PROPERTY_ID,
+            'dimensions' => $dimensions,
+            'metrics' => $metrics,
+            'dateRanges' => [
+                new DateRange(['start_date' => '30daysAgo', 'end_date' => 'today'])
+            ]
+        ];
+
+        try {
+            $response = $this->client->runReport($request);
+            return json_decode($response->serializeToJsonString(), true);
+        } catch (\Exception $e) {
+            Log::error('Error fetching new vs. returning users data:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Failed to get new vs. returning users data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Additional methods for user demographics and session duration can be added similarly
 }
+

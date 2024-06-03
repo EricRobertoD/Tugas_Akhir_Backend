@@ -128,6 +128,8 @@ Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
 
     Route::get('loginReal', 'App\Http\Controllers\AnalyticsController@getRealtimeData');
     Route::get('loginLate', 'App\Http\Controllers\AnalyticsController@getLateTimeData');
+    Route::get('eventCount', 'App\Http\Controllers\AnalyticsController@eventCount');
+    Route::get('newVsReturning', 'App\Http\Controllers\AnalyticsController@newVsReturning');
 
 
 
