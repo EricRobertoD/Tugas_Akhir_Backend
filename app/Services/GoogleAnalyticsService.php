@@ -12,18 +12,27 @@ use Illuminate\Support\Facades\Log;
 class GoogleAnalyticsService
 {
     protected $client;
-
+    
     public function __construct()
     {
-        $credentials = getenv('GOOGLE_API_CREDENTIALS');
-        if ($credentials === false) {
-            throw new \Exception("GOOGLE_API_CREDENTIALS environment variable not set");
-        }
-
+        $credentials = [
+            "type" => getenv('type'),
+            "project_id" => getenv('project_id'),
+            "private_key_id" => getenv('private_key_id'),
+            "private_key" => getenv('private_key'),
+            "client_email" => getenv('client_email'),
+            "client_id" => getenv('client_id'),
+            "auth_uri" => getenv('auth_uri'),
+            "token_uri" => getenv('token_uri'),
+            "auth_provider_x509_cert_url" => getenv('auth_provider_x509_cert_url'),
+            "client_x509_cert_url" => getenv('client_x509_cert_url')
+        ];
+    
         $this->client = new BetaAnalyticsDataClient([
-            'credentials' => json_decode($credentials, true)
+            'credentials' => $credentials
         ]);
     }
+
 
     public function getAllRawData()
     {
