@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 class GoogleAnalyticsService
 {
     protected $client;
-    
+
     public function __construct()
     {
         $credentials = [
@@ -25,7 +25,8 @@ class GoogleAnalyticsService
             "auth_uri" => getenv('auth_uri'),
             "token_uri" => getenv('token_uri'),
             "auth_provider_x509_cert_url" => getenv('auth_provider_x509_cert_url'),
-            "client_x509_cert_url" => getenv('client_x509_cert_url')
+            "client_x509_cert_url" => getenv('client_x509_cert_url'),
+            "universe_domain" => getenv('universe_domain')
         ];
     
         $this->client = new BetaAnalyticsDataClient([
