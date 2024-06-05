@@ -28,7 +28,7 @@ class MidtransWebhookController extends Controller
         }
 
         if (in_array($json['transaction_status'], ['capture', 'settlement'])) {
-            $saldo = Saldo::where('id', $json['order_id'])->first();
+            $saldo = Saldo::where('id_saldo', $json['order_id'])->first();
 
             if ($saldo) {
                 $saldo->status = 'berhasil';
