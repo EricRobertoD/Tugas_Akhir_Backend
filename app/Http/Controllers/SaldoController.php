@@ -153,7 +153,7 @@ class SaldoController extends Controller
 
         $params = [
             'transaction_details' => [
-                'order_id' => $saldo->id,
+                'order_id' => uniqid(),
                 'gross_amount' => $total,
             ],
             'customer_details' => [
