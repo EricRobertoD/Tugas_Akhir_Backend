@@ -78,6 +78,7 @@ class GoogleAnalyticsService
 
         $dimensions = [
             (new Dimension())->setName('date'),
+            (new Dimension())->setName('customEvent:role'), // Custom dimension for role
         ];
 
         $metrics = [
@@ -101,12 +102,21 @@ class GoogleAnalyticsService
 
         $responses = [];
         foreach ($requests as $request) {
-            $response = $this->client->runReport($request);
-            $responses[] = json_decode($response->serializeToJsonString(), true);
+            try {
+                $response = $this->client->runReport($request);
+                $responses[] = json_decode($response->serializeToJsonString(), true);
+            } catch (\Exception $e) {
+                Log::error('Error fetching late time data:', ['error' => $e->getMessage()]);
+                return response()->json([
+                    'message' => 'Failed to get late time data',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
         }
 
         return $responses;
     }
+
 
     public function getEventCountData()
     {
@@ -173,7 +183,4 @@ class GoogleAnalyticsService
             ], 500);
         }
     }
-
-    // Additional methods for user demographics and session duration can be added similarly
 }
-
