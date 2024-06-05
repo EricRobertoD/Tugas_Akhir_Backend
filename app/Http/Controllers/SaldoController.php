@@ -133,6 +133,8 @@ class SaldoController extends Controller
 
         $total = $request->input('total');
 
+        $adjustedTotal = $total * 0.9;
+
         $saldo = Saldo::create([
             'id_penyedia' => $user->id_penyedia ?? null,
             'id_pengguna' => $user->id_pengguna ?? null,
