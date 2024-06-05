@@ -164,12 +164,12 @@ class SaldoController extends Controller
         ];
 
         $snapToken = \Midtrans\Snap::getSnapToken($params);
-        $paymentUrl = "https://app.sandbox.midtrans.com/snap/v2/vtweb/" . $snapToken;
+        $saldo->snap_token = $snapToken;
+        $saldo->save();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Deposit request submitted successfully',
-            'payment_url' => $paymentUrl,
         ], 201);
     }
 
