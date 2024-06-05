@@ -23,6 +23,7 @@ RUN composer install --no-scripts
 RUN composer require pusher/pusher-php-server
 RUN composer require google/apiclient
 RUN composer require google/analytics-data
+RUN composer require midtrans/midtrans-phpN 
 RUN docker-php-ext-install bcmath
 
 

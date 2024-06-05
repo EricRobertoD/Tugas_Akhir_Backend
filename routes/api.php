@@ -39,6 +39,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('confirmDeposit', 'App\Http\Controllers\SaldoController@confirmDeposit');
 
+    Route::post('createPaymentLink', 'App\Http\Controllers\SaldoController@createPaymentLink');
+    Route::post('depositMidtrans', 'App\Http\Controllers\SaldoController@depositMidtrans');
+    Route::post('midtrans/webhook', 'App\Http\Controllers\MidtransWebhookController@hanle');
+
 });
 
 Route::middleware(['auth:sanctum', 'ability:penyedia'])->group(function(){

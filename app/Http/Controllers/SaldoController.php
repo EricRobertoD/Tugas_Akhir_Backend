@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class SaldoController extends Controller
 {
@@ -91,12 +93,86 @@ class SaldoController extends Controller
             'tanggal' => Carbon::today()->format('Y-m-d'),
         ]);
 
+
+        $user = $saldo->id_penyedia ? $saldo->PenyediaJasa : ($saldo->id_pengguna ? $saldo->pengguna : null);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $user->saldo += $saldo->total;
+        $user->save();
+
         return response()->json([
             'status' => 'success',
             'message' => 'Deposit request submitted successfully',
             'data' => $saldo,
         ], 201);
     }
+
+    public function depositMidtrans(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'total' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $total = $request->input('total');
+
+        $saldo = Saldo::create([
+            'id_penyedia' => $user->id_penyedia ?? null,
+            'id_pengguna' => $user->id_pengguna ?? null,
+            'jenis' => 'deposit',
+            'total' => $total,
+            'status' => 'pending',
+            'tanggal' => Carbon::today()->format('Y-m-d'),
+        ]);
+
+        // Create Midtrans transaction
+        \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
+        \Midtrans\Config::$isProduction = config('services.midtrans.is_production');
+        \Midtrans\Config::$isSanitized = config('services.midtrans.is_sanitized');
+        \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds');
+
+        $telepon = $user->nomor_telepon_pengguna ?? $user->nomor_telepon_penyedia;
+        $nama = $user->nama_pengguna ?? $user->nama_penyedia;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $saldo->id,
+                'gross_amount' => $total,
+            ],
+            'customer_details' => [
+                'first_name' => $user->nama_penyedia,
+                'email' => $user->email,
+                'phone' => $user->$telepon,
+            ],
+        ];
+
+        $snapToken = \Midtrans\Snap::getSnapToken($params);
+        $paymentUrl = "https://app.sandbox.midtrans.com/snap/v2/vtweb/" . $snapToken;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Deposit request submitted successfully',
+            'payment_url' => $paymentUrl,
+        ], 201);
+    }
+
 
     public function withdraw(Request $request)
     {
@@ -210,7 +286,7 @@ class SaldoController extends Controller
             $fileNameToStore = 'noimage.jpg';
         }
 
-        
+
         $user->saldo -= $saldo->total;
         $user->save();
         $saldo->status = 'berhasil';
@@ -291,5 +367,46 @@ class SaldoController extends Controller
             'message' => 'Withdraw rejected successfully',
             'data' => $saldo,
         ], 200);
+    }
+
+    public function createPaymentLink(Request $request)
+    {
+        // Set your Merchant Server Key
+        Config::$serverKey = config('services.midtrans.server_key');
+        // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
+        Config::$isProduction = config('services.midtrans.is_production');
+        // Set sanitization on (default)
+        Config::$isSanitized = config('services.midtrans.is_sanitized');
+        // Set 3DS transaction for credit card to true
+        Config::$is3ds = config('services.midtrans.is_3ds');
+
+        // Validate request
+        $request->validate([
+            'amount' => 'required|numeric',
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'required|string',
+        ]);
+
+        // Prepare transaction parameters
+        $params = [
+            'transaction_details' => [
+                'order_id' => uniqid(),
+                'gross_amount' => $request->amount,
+            ],
+            'customer_details' => [
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+            ],
+        ];
+
+        // Create Snap payment link
+        $snapToken = Snap::getSnapToken($params);
+        $paymentUrl = "https://app.sandbox.midtrans.com/snap/v2/vtweb/" . $snapToken;
+
+        return response()->json(['payment_url' => $paymentUrl]);
     }
 }
