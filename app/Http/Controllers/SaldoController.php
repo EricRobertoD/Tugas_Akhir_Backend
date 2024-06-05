@@ -170,10 +170,39 @@ class SaldoController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Deposit request submitted successfully',
+            'data' => $saldo,
         ], 201);
     }
 
+    
+    public function confirmDepositMidtrans($id)
+    {
+        $saldo = Saldo::find($id);
+        if (!$saldo || $saldo->jenis !== 'deposit' || $saldo->status !== 'pending') {
+            return response()->json([
+                'message' => 'Invalid deposit transaction.',
+            ], 400);
+        }
 
+        $user = $saldo->id_penyedia ? $saldo->PenyediaJasa : ($saldo->id_pengguna ? $saldo->pengguna : null);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $user->saldo += $saldo->total;
+        $user->save();
+
+        $saldo->status = 'berhasil';
+        $saldo->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Deposit confirmed successfully',
+            'data' => $saldo,
+        ], 200);
+    }
 
     public function withdraw(Request $request)
     {
