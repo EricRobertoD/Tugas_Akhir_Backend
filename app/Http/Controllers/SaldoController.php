@@ -157,7 +157,7 @@ class SaldoController extends Controller
                 'gross_amount' => $total,
             ],
             'customer_details' => [
-                'first_name' => $user->nama_penyedia,
+                'first_name' => $user->$nama,
                 'email' => $user->email,
                 'phone' => $user->$telepon,
             ],
