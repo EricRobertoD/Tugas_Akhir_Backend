@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('createPaymentLink', 'App\Http\Controllers\SaldoController@createPaymentLink');
     Route::post('depositMidtrans', 'App\Http\Controllers\SaldoController@depositMidtrans');
-    Route::post('midtrans/webhook', 'App\Http\Controllers\MidtransWebhookController@hanle');
+    Route::post('midtrans/webhook', 'App\Http\Controllers\MidtransWebhookController@handle');
 
 });
 
