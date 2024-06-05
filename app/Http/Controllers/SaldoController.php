@@ -150,6 +150,7 @@ class SaldoController extends Controller
 
         $telepon = $user->nomor_telepon_pengguna ?? $user->nomor_telepon_penyedia;
         $nama = $user->nama_pengguna ?? $user->nama_penyedia;
+        $email = $user->email_pengguna ?? $user->email_penyedia;
 
         $params = [
             'transaction_details' => [
@@ -157,9 +158,9 @@ class SaldoController extends Controller
                 'gross_amount' => $total,
             ],
             'customer_details' => [
-                'first_name' => $user->$nama,
-                'email' => $user->email,
-                'phone' => $user->$telepon,
+                'first_name' => $nama,
+                'email' => $email,
+                'phone' => $telepon,
             ],
         ];
 
