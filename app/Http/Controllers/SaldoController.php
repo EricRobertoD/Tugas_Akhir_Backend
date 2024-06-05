@@ -142,7 +142,6 @@ class SaldoController extends Controller
             'tanggal' => Carbon::today()->format('Y-m-d'),
         ]);
 
-        // Create Midtrans transaction
         \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
         \Midtrans\Config::$isProduction = config('services.midtrans.is_production');
         \Midtrans\Config::$isSanitized = config('services.midtrans.is_sanitized');
@@ -154,7 +153,7 @@ class SaldoController extends Controller
 
         $params = [
             'transaction_details' => [
-                'order_id' => uniqid(),
+                'order_id' => $saldo->id,
                 'gross_amount' => $total,
             ],
             'customer_details' => [
@@ -173,6 +172,7 @@ class SaldoController extends Controller
             'payment_url' => $paymentUrl,
         ], 201);
     }
+
 
 
     public function withdraw(Request $request)
