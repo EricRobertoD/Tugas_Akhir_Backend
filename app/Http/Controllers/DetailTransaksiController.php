@@ -88,7 +88,7 @@ class DetailTransaksiController extends Controller
         ], 201);
     }
 
-    
+
     public function tambahKeranjang(Request $request)
     {
         $id_pengguna = auth()->user()->id_pengguna;
@@ -110,8 +110,10 @@ class DetailTransaksiController extends Controller
         $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
 
         $transaksi = Transaksi::where('id_pengguna', $id_pengguna)
-            ->where('tanggal_pelaksanaan', $tanggal_pelaksanaan)
             ->whereNull('status_transaksi')
+            ->whereHas('detailTransaksi', function ($query) use ($tanggal_pelaksanaan) {
+                $query->where('tanggal_pelaksanaan', $tanggal_pelaksanaan);
+            })
             ->first();
 
         if (!$transaksi) {
