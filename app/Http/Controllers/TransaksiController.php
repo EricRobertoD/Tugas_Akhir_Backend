@@ -35,7 +35,7 @@ class TransaksiController extends Controller
         $id_pengguna = auth()->user()->id_pengguna;
         $validator = Validator::make($request->all(), [
             'total_harga' => 'required',
-            'tanggal_pelaksanaan' => 'required',
+            'tanggal_pelaksanaan' => 'required|date',
             'jam_mulai' => 'required',
             'jam_selesai' => 'required',
         ]);
@@ -47,12 +47,31 @@ class TransaksiController extends Controller
             ], 400);
         }
 
+        $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
+        $year = date('Y', strtotime($tanggal_pelaksanaan));
+        $month = date('m', strtotime($tanggal_pelaksanaan));
+        $day = date('d', strtotime($tanggal_pelaksanaan));
+
+        $lastTransaksi = Transaksi::whereDate('tanggal_pelaksanaan', $tanggal_pelaksanaan)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($lastTransaksi) {
+            $lastInvoiceNumber = intval(substr($lastTransaksi->invoice, -3));
+            $newInvoiceNumber = str_pad($lastInvoiceNumber + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            $newInvoiceNumber = '001';
+        }
+
+        $invoice = "R-{$year}{$month}{$day}{$newInvoiceNumber}";
+
         $transaksi = Transaksi::create([
             'id_pengguna' => $id_pengguna,
             'total_harga' => $request->input('total_harga'),
-            'tanggal_pelaksanaan' => $request->input('tanggal_pelaksanaan'),
+            'tanggal_pelaksanaan' => $tanggal_pelaksanaan,
             'jam_mulai' => $request->input('jam_mulai'),
             'jam_selesai' => $request->input('jam_selesai'),
+            'invoice' => $invoice
         ]);
 
         return response([
