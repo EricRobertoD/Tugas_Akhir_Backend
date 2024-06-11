@@ -75,6 +75,16 @@ class TransaksiController extends Controller
             $month = str_pad($currentDate->month, 2, '0', STR_PAD_LEFT);
             $day = str_pad($currentDate->day, 2, '0', STR_PAD_LEFT);
 
+            $lastTransaksi = Transaksi::whereDate('created_at', $currentDate->toDateString())
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($lastTransaksi) {
+                $lastInvoiceNumber = intval(substr($lastTransaksi->invoice, -3));
+            } else {
+                $lastInvoiceNumber = 0;
+            }
+
             foreach ($ids as $id) {
                 $transaksi = Transaksi::find($id);
 
@@ -82,17 +92,8 @@ class TransaksiController extends Controller
                     throw new \Exception('Transaksi not found.');
                 }
 
-                $lastTransaksi = Transaksi::whereDate('created_at', $currentDate->toDateString())
-                    ->orderBy('created_at', 'desc')
-                    ->first();
-
-                if ($lastTransaksi) {
-                    $lastInvoiceNumber = intval(substr($lastTransaksi->invoice, -3));
-                    $newInvoiceNumber = str_pad($lastInvoiceNumber + 1, 3, '0', STR_PAD_LEFT);
-                } else {
-                    $newInvoiceNumber = '001';
-                }
-
+                $lastInvoiceNumber++;
+                $newInvoiceNumber = str_pad($lastInvoiceNumber, 3, '0', STR_PAD_LEFT);
                 $invoice = "R-{$year}{$month}{$day}{$newInvoiceNumber}";
 
                 $transaksi->status_transaksi = 'Sudah Bayar';
