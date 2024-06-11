@@ -34,28 +34,28 @@ class DetailTransaksiController extends Controller
 
 
     public function indexPengguna()
-{
-    $user = auth()->user();
-    if (!$user) {
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        $id_pengguna = $user->id_pengguna;
+        $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function ($query) use ($id_pengguna) {
+            $query->where('id_pengguna', $id_pengguna);
+        })
+            ->whereNotNull('status_penyedia_jasa')
+            ->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')
+            ->get();
+
         return response()->json([
-            'message' => 'User not authenticated.',
-        ], 401);
+            'status' => 'success',
+            'message' => 'Detail transaksis retrieved successfully',
+            'data' => $detailTransaksis,
+        ], 200);
     }
-
-    $id_pengguna = $user->id_pengguna;
-    $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function ($query) use ($id_pengguna) {
-        $query->where('id_pengguna', $id_pengguna);
-    })
-    ->whereNotNull('status_penyedia_jasa') // Add this condition
-    ->with('Paket.PenyediaJasa', 'Transaksi.Pengguna')
-    ->get();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Detail transaksis retrieved successfully',
-        'data' => $detailTransaksis,
-    ], 200);
-}
 
     public function store(Request $request)
     {
@@ -88,13 +88,14 @@ class DetailTransaksiController extends Controller
         ], 201);
     }
 
+    
     public function tambahKeranjang(Request $request)
     {
         $id_pengguna = auth()->user()->id_pengguna;
         $validator = Validator::make($request->all(), [
             'id_paket' => 'required',
             'subtotal' => 'required',
-            'tanggal_pelaksanaan' => 'required',
+            'tanggal_pelaksanaan' => 'required|date',
             'jam_mulai' => 'required',
             'jam_selesai' => 'required',
         ]);
@@ -106,7 +107,10 @@ class DetailTransaksiController extends Controller
             ], 400);
         }
 
+        $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
+
         $transaksi = Transaksi::where('id_pengguna', $id_pengguna)
+            ->where('tanggal_pelaksanaan', $tanggal_pelaksanaan)
             ->whereNull('status_transaksi')
             ->first();
 
@@ -115,6 +119,7 @@ class DetailTransaksiController extends Controller
                 'id_pengguna' => $id_pengguna,
                 'status_transaksi' => null,
                 'total_harga' => 0,
+                'tanggal_pelaksanaan' => $tanggal_pelaksanaan,
             ]);
         }
 
@@ -227,7 +232,7 @@ class DetailTransaksiController extends Controller
             'data' => $transaksi,
         ], 200);
     }
-    
+
     public function updateStatusBerlangsung(Request $request, $id)
     {
         $transaksi = DetailTransaksi::find($id);
@@ -258,72 +263,71 @@ class DetailTransaksiController extends Controller
     }
 
     public function confirmDetailTransaksi(Request $request, $id)
-{
-    $detailTransaksi = DetailTransaksi::find($id);
-    
-    if (!$detailTransaksi) {
+    {
+        $detailTransaksi = DetailTransaksi::find($id);
+
+        if (!$detailTransaksi) {
+            return response()->json([
+                'message' => 'DetailTransaksi not found.',
+            ], 404);
+        }
+
+        $penyediaJasa = $detailTransaksi->paket->penyediaJasa;
+        $subtotal = $detailTransaksi->subtotal;
+
+        $penyediaJasa->saldo += $subtotal;
+        $penyediaJasa->save();
+
+        $penyediaSaldo = new Saldo();
+        $penyediaSaldo->id_penyedia = $penyediaJasa->id_penyedia;
+        $penyediaSaldo->total = $subtotal;
+        $penyediaSaldo->jenis = 'Penjualan';
+        $penyediaSaldo->tanggal = Carbon::today()->format('Y-m-d');
+        $penyediaSaldo->status = 'berhasil';
+        $penyediaSaldo->save();
+
+        $detailTransaksi->status_penyedia_jasa = 'Sedang bekerja sama dengan pelanggan';
+        $detailTransaksi->save();
+
         return response()->json([
-            'message' => 'DetailTransaksi not found.',
-        ], 404);
+            'status' => 'success',
+            'message' => 'DetailTransaksi confirmed successfully',
+            'data' => $detailTransaksi,
+        ], 200);
     }
 
-    $penyediaJasa = $detailTransaksi->paket->penyediaJasa;
-    $subtotal = $detailTransaksi->subtotal;
+    public function cancelDetailTransaksi(Request $request, $id)
+    {
+        $detailTransaksi = DetailTransaksi::find($id);
 
-    $penyediaJasa->saldo += $subtotal;
-    $penyediaJasa->save();
+        if (!$detailTransaksi) {
+            return response()->json([
+                'message' => 'DetailTransaksi not found.',
+            ], 404);
+        }
 
-    $penyediaSaldo = new Saldo();
-    $penyediaSaldo->id_penyedia = $penyediaJasa->id_penyedia;
-    $penyediaSaldo->total = $subtotal;
-    $penyediaSaldo->jenis = 'Penjualan';
-    $penyediaSaldo->tanggal = Carbon::today()->format('Y-m-d');
-    $penyediaSaldo->status = 'berhasil';
-    $penyediaSaldo->save();
+        $transaksi = $detailTransaksi->transaksi;
+        $pengguna = $transaksi->pengguna;
+        $subtotal = $detailTransaksi->subtotal;
 
-    $detailTransaksi->status_penyedia_jasa = 'Sedang bekerja sama dengan pelanggan';
-    $detailTransaksi->save();
+        $pengguna->saldo += $subtotal;
+        $pengguna->save();
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'DetailTransaksi confirmed successfully',
-        'data' => $detailTransaksi,
-    ], 200);
-}
+        $penggunaSaldo = new Saldo();
+        $penggunaSaldo->id_pengguna = $pengguna->id_pengguna;
+        $penggunaSaldo->total = $subtotal;
+        $penggunaSaldo->jenis = 'Refund';
+        $penggunaSaldo->tanggal = Carbon::today()->format('Y-m-d');
+        $penggunaSaldo->status = 'berhasil';
+        $penggunaSaldo->save();
 
-public function cancelDetailTransaksi(Request $request, $id)
-{
-    $detailTransaksi = DetailTransaksi::find($id);
+        $detailTransaksi->status_penyedia_jasa = 'Transaksi dibatalkan';
+        $detailTransaksi->save();
 
-    if (!$detailTransaksi) {
         return response()->json([
-            'message' => 'DetailTransaksi not found.',
-        ], 404);
+            'status' => 'success',
+            'message' => 'DetailTransaksi canceled successfully',
+            'data' => $detailTransaksi,
+        ], 200);
     }
-
-    $transaksi = $detailTransaksi->transaksi;
-    $pengguna = $transaksi->pengguna;
-    $subtotal = $detailTransaksi->subtotal;
-
-    $pengguna->saldo += $subtotal;
-    $pengguna->save();
-
-    $penggunaSaldo = new Saldo();
-    $penggunaSaldo->id_pengguna = $pengguna->id_pengguna;
-    $penggunaSaldo->total = $subtotal;
-    $penggunaSaldo->jenis = 'Refund';
-    $penggunaSaldo->tanggal = Carbon::today()->format('Y-m-d');
-    $penggunaSaldo->status = 'berhasil';
-    $penggunaSaldo->save();
-
-    $detailTransaksi->status_penyedia_jasa = 'Transaksi dibatalkan';
-    $detailTransaksi->save();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'DetailTransaksi canceled successfully',
-        'data' => $detailTransaksi,
-    ], 200);
-}
-
 }
