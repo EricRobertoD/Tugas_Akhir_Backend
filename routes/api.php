@@ -137,6 +137,7 @@ Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
     Route::get('newVsReturning', 'App\Http\Controllers\AnalyticsController@getNewVsReturningUsers');
 
     Route::get('topPengguna', 'App\Http\Controllers\LaporanController@top5PenggunaWithMostTransaksi');
+    Route::get('successfulDetailTransaksi', 'App\Http\Controllers\LaporanController@countSuccessfulDetailTransaksi');
 
 
 
