@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
 
-class Owner extends Model
+class Owner extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
     protected $table = 'owner';
