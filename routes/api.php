@@ -13,6 +13,9 @@ Route::post('loginPenyedia', 'App\Http\Controllers\AuthController@loginPenyedia'
 Route::post('registerAdmin', 'App\Http\Controllers\AuthController@registerAdmin');
 Route::post('loginAdmin', 'App\Http\Controllers\AuthController@loginAdmin');
 
+Route::post('registerOwner', 'App\Http\Controllers\OwnerController@registerOwner');
+Route::post('loginOwner', 'App\Http\Controllers\OwnerController@loginOwner');
+
 Route::delete('gambar/{gambar}', 'App\Http\Controllers\GambarPortoController@delete');
 
 Route::post('logout', 'App\Http\Controllers\AuthController@logout');
@@ -131,6 +134,13 @@ Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
     Route::get('pendingWithdraw', 'App\Http\Controllers\SaldoController@indexPendingWithdraw');
     Route::get('pendingDeposit', 'App\Http\Controllers\SaldoController@indexPendingDeposit');
 
+
+});
+
+
+Route::middleware(['auth:sanctum', 'ability:owner'])->group(function(){
+    Route::get('owner', 'App\Http\Controllers\OwnerController@index');
+
     Route::get('loginReal', 'App\Http\Controllers\AnalyticsController@getRealtimeData');
     Route::get('loginLate', 'App\Http\Controllers\AnalyticsController@getLateTimeData');
     Route::get('eventCount', 'App\Http\Controllers\AnalyticsController@getEventCountData');
@@ -138,7 +148,4 @@ Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
 
     Route::get('topPengguna', 'App\Http\Controllers\LaporanController@top5PenggunaWithMostTransaksi');
     Route::get('successfulDetailTransaksi', 'App\Http\Controllers\LaporanController@countSuccessfulDetailTransaksi');
-
-
-
 });
