@@ -37,7 +37,7 @@ class TransaksiController extends Controller
             'ids' => 'required|array',
             'ids.*' => 'exists:transaksi,id_transaksi',
             'total_harga' => 'required|numeric',
-            'id_voucher' => 'nullable|exists:vouchers,id_voucher',
+            'id_voucher' => 'nullable|exists:voucher,id_voucher',
         ]);
     
         if ($validator->fails()) {
