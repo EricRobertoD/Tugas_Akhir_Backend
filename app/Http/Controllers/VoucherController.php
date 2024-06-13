@@ -58,42 +58,44 @@ class VoucherController extends Controller
             'data' => $voucher
         ], 201);
     }
-
+    
     public function updateStatus(Request $request, $id)
     {
         $voucher = Voucher::find($id);
-
+    
         if (!$voucher) {
             return response()->json([
                 'message' => 'Voucher not found.',
             ], 404);
         }
+    
         $validator = Validator::make($request->all(), [
             'status' => 'required',
-            'tanggal_mulai' => $request->input('tanggal_mulai'),
-            'tanggal_selesai' => $request->input('tanggal_selesai'),
-            'persen' => 'required',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date',
+            'persen' => 'required|numeric|min:0|max:100',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 400);
         }
-
+    
         $voucher->status = $request->input('status');
         $voucher->tanggal_mulai = $request->input('tanggal_mulai');
         $voucher->tanggal_selesai = $request->input('tanggal_selesai');
         $voucher->persen = $request->input('persen');
         $voucher->save();
-
+    
         return response()->json([
             'status' => 'success',
             'message' => 'Voucher updated successfully',
             'data' => $voucher,
         ], 200);
     }
+    
 
     public function destroy($id)
     {
