@@ -151,4 +151,5 @@ Route::middleware(['auth:sanctum', 'ability:owner'])->group(function(){
 
     Route::get('topPengguna', 'App\Http\Controllers\LaporanController@top5PenggunaWithMostTransaksi');
     Route::get('successfulDetailTransaksi', 'App\Http\Controllers\LaporanController@countSuccessfulDetailTransaksi');
+    Route::get('depositPerMonthPerYear', 'App\Http\Controllers\LaporanController@depositPerMonthPerYear');
 });
