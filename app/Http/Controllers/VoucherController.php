@@ -112,7 +112,7 @@ class VoucherController extends Controller
             'message' => 'Voucher deleted successfully',
         ], 200);
     }
-    
+
     public function applyVoucher(Request $request)
     {
         $user = auth()->user();
@@ -129,7 +129,7 @@ class VoucherController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors(),
+                'errors' => $validator->errors()->first('kode_voucher'),
             ], 400);
         }
 
