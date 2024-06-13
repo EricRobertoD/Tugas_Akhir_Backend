@@ -133,14 +133,12 @@ class SaldoController extends Controller
 
         $total = $request->input('total');
 
-        $adjustedTotal = $total * 0.9;
-
         $saldo = Saldo::create([
             'id_penyedia' => $user->id_penyedia ?? null,
             'id_pengguna' => $user->id_pengguna ?? null,
             'jenis' => 'deposit',
             'total' => $total,
-            'status' => 'pending',
+            'status' => 'gagal',
             'tanggal' => Carbon::today()->format('Y-m-d'),
         ]);
 
@@ -251,36 +249,6 @@ class SaldoController extends Controller
         ], 201);
     }
 
-    public function confirmDeposit($id)
-    {
-        $saldo = Saldo::find($id);
-        if (!$saldo || $saldo->jenis !== 'deposit' || $saldo->status !== 'pending') {
-            return response()->json([
-                'message' => 'Invalid deposit transaction.',
-            ], 400);
-        }
-
-        $user = $saldo->id_penyedia ? $saldo->PenyediaJasa : ($saldo->id_pengguna ? $saldo->pengguna : null);
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found.',
-            ], 404);
-        }
-
-        $user->saldo += $saldo->total;
-        $user->save();
-
-        $saldo->status = 'berhasil';
-        $saldo->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Deposit confirmed successfully',
-            'data' => $saldo,
-        ], 200);
-    }
-
-
     public function confirmWithdraw(Request $request, $id)
     {
         $saldo = Saldo::find($id);
@@ -348,40 +316,6 @@ class SaldoController extends Controller
         ], 200);
     }
 
-    public function indexPendingDeposit()
-    {
-        $saldo = Saldo::where('status', 'pending')
-            ->where('jenis', 'deposit')
-            ->with(['PenyediaJasa', 'Pengguna'])
-            ->get();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Pending deposits retrieved successfully',
-            'data' => $saldo,
-        ], 200);
-    }
-
-
-    public function rejectDeposit($id)
-    {
-        $saldo = Saldo::find($id);
-        if (!$saldo || $saldo->jenis !== 'deposit' || $saldo->status !== 'pending') {
-            return response()->json([
-                'message' => 'Invalid deposit transaction.',
-            ], 400);
-        }
-
-        $saldo->status = 'gagal';
-        $saldo->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Deposit rejected successfully',
-            'data' => $saldo,
-        ], 200);
-    }
-
     public function rejectWithdraw($id)
     {
         $saldo = Saldo::find($id);
@@ -403,16 +337,11 @@ class SaldoController extends Controller
 
     public function createPaymentLink(Request $request)
     {
-        // Set your Merchant Server Key
         Config::$serverKey = config('services.midtrans.server_key');
-        // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
         Config::$isProduction = config('services.midtrans.is_production');
-        // Set sanitization on (default)
         Config::$isSanitized = config('services.midtrans.is_sanitized');
-        // Set 3DS transaction for credit card to true
         Config::$is3ds = config('services.midtrans.is_3ds');
 
-        // Validate request
         $request->validate([
             'amount' => 'required|numeric',
             'first_name' => 'required|string',
@@ -421,7 +350,6 @@ class SaldoController extends Controller
             'phone' => 'required|string',
         ]);
 
-        // Prepare transaction parameters
         $params = [
             'transaction_details' => [
                 'order_id' => uniqid(),
@@ -435,7 +363,6 @@ class SaldoController extends Controller
             ],
         ];
 
-        // Create Snap payment link
         $snapToken = Snap::getSnapToken($params);
         $paymentUrl = "https://app.sandbox.midtrans.com/snap/v2/vtweb/" . $snapToken;
 

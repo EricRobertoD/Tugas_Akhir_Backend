@@ -121,19 +121,22 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
     Route::put('updateBerlangsung/{updateBerlangsung}', 'App\Http\Controllers\DetailTransaksiController@updateStatusBerlangsung');
 
     Route::get('saldoPengguna', 'App\Http\Controllers\SaldoController@indexPengguna');
+
+    Route::post('applyVoucher', 'App\Http\Controllers\VoucherController@applyVoucher');
+
 });
 
 Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
     Route::get('admin', 'App\Http\Controllers\AdminController@index');
 
     Route::post('confirmWithdraw/{id_saldo}', 'App\Http\Controllers\SaldoController@confirmWithdraw');
-    Route::post('confirmDeposit/{id_saldo}', 'App\Http\Controllers\SaldoController@confirmDeposit');
     Route::post('rejectWithdraw/{id_saldo}', 'App\Http\Controllers\SaldoController@rejectWithdraw');
-    Route::post('rejectDeposit/{id_saldo}', 'App\Http\Controllers\SaldoController@rejectDeposit');
-
     Route::get('pendingWithdraw', 'App\Http\Controllers\SaldoController@indexPendingWithdraw');
-    Route::get('pendingDeposit', 'App\Http\Controllers\SaldoController@indexPendingDeposit');
 
+    Route::get('voucher', 'App\Http\Controllers\VoucherController@index');
+    Route::post('voucher', 'App\Http\Controllers\VoucherController@store');
+    Route::put('voucher/{voucher}', 'App\Http\Controllers\VoucherController@updateStatus');
+    Route::delete('voucher/{voucher}', 'App\Http\Controllers\VoucherController@destroy');
 
 });
 
