@@ -112,12 +112,18 @@ class VoucherController extends Controller
             'message' => 'Voucher deleted successfully',
         ], 200);
     }
-
+    
     public function applyVoucher(Request $request)
     {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
         $validator = Validator::make($request->all(), [
             'kode_voucher' => 'required',
-            'id_pengguna' => 'required|exists:pengguna,id_pengguna',
         ]);
 
         if ($validator->fails()) {
@@ -128,7 +134,6 @@ class VoucherController extends Controller
         }
 
         $kodeVoucher = $request->input('kode_voucher');
-        $idPengguna = $request->input('id_pengguna');
 
         $voucher = Voucher::where('kode_voucher', $kodeVoucher)
             ->where('status', 'aktif')
@@ -142,7 +147,7 @@ class VoucherController extends Controller
             ], 404);
         }
 
-        $transaksiVoucher = TransaksiVoucher::where('id_pengguna', $idPengguna)
+        $transaksiVoucher = TransaksiVoucher::where('id_pengguna', $user->id_pengguna)
             ->where('id_voucher', $voucher->id_voucher)
             ->first();
 
