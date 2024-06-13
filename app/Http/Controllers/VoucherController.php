@@ -143,7 +143,7 @@ class VoucherController extends Controller
 
         if (!$voucher) {
             return response()->json([
-                'message' => 'Voucher not found or not active.',
+                'message' => 'Voucher tidak ketemu atau tidak aktif.',
             ], 404);
         }
 
@@ -153,13 +153,13 @@ class VoucherController extends Controller
 
         if ($transaksiVoucher) {
             return response()->json([
-                'message' => 'Voucher already used.',
+                'message' => 'Voucher telah pernah digunakan.',
             ], 400);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Voucher can be used.',
+            'message' => 'Voucher dapat dipakai.',
             'data' => $voucher,
         ], 200);
     }
