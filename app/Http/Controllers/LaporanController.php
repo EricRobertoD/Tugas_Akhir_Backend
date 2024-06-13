@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PenyediaJasa;
 use App\Models\Pengguna;
+use App\Models\Saldo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -72,5 +73,39 @@ class LaporanController extends Controller
             ->get();
 
         return response()->json($successfulTransaksi);
+    }
+
+
+    public function depositPerMonthPerYear(Request $request)
+    {
+        $request->validate([
+            'start_year' => 'required|integer|min:2000',
+            'end_year' => 'required|integer|min:2000|gte:start_year',
+        ]);
+
+        $startYear = $request->input('start_year');
+        $endYear = $request->input('end_year');
+
+        $depositData = Saldo::select(
+            DB::raw('YEAR(created_at) as year'),
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('SUM(total) as total_deposit')
+        )
+            ->where('jenis', 'deposit')
+            ->where('status', 'berhasil')
+            ->whereBetween(DB::raw('YEAR(created_at)'), [$startYear, $endYear])
+            ->groupBy(DB::raw('YEAR(created_at)'), DB::raw('MONTH(created_at)'))
+            ->orderBy(DB::raw('YEAR(created_at)'), 'asc')
+            ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
+            ->get();
+
+        $formattedData = $depositData->mapToGroups(function ($item) {
+            return [$item->year => [
+                'month' => $item->month,
+                'total_deposit' => $item->total_deposit
+            ]];
+        });
+
+        return response()->json($formattedData);
     }
 }
