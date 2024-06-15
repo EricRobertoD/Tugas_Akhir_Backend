@@ -21,7 +21,7 @@ class DetailTransaksiController extends Controller
         }
 
         $id_penyedia = $user->id_penyedia;
-        $detailTransaksis = DetailTransaksi::whereHas('Transaksi', function ($query) use ($id_penyedia) {
+        $detailTransaksis = DetailTransaksi::whereHas('Paket', function ($query) use ($id_penyedia) {
             $query->where('id_penyedia', $id_penyedia);
         })
             ->whereNotNull('status_penyedia_jasa')
