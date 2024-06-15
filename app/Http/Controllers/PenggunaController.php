@@ -93,7 +93,7 @@ class PenggunaController extends Controller
 
         $validate = Validator::make($request->all(), [
             'nama_pengguna' => 'required',
-            'email_pengguna' => 'required|string|email|max:255|unique:pengguna,email_pengguna,' . $id_pengguna . ',id_pengguna|unique:penyedia,email_penyedia',
+            'email_pengguna' => 'required|string|email|max:255|unique:penyedia_jasa,email_penyedia|unique:pengguna,email_pengguna,' . $id_pengguna . ',id_pengguna',
             'nomor_telepon_pengguna' => 'required',
             'nomor_whatsapp_pengguna' => 'required',
             'alamat_pengguna' => 'required',
