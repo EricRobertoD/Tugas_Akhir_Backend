@@ -193,16 +193,14 @@ class AuthController extends Controller
             return response(['message' => $validate->errors()->first(), 'errors' => $validate->errors()], 400);
         }
 
-        // Check if the user exists in Pengguna table
         $user = Pengguna::where('email_pengguna', $request->email_pengguna)->first();
 
-        // If not found in Pengguna table, check PenyediaJasa table
         if (!$user) {
             $user = PenyediaJasa::where('email_penyedia', $request->email_pengguna)->first();
             if (!$user) {
                 return response()->json([
                     'errors' => [
-                        'email' => 'Email Penyedia Jasa tidak ditemukan'
+                        'email' => 'Email tidak ditemukan'
                     ]
                 ], 404);
             }
@@ -210,13 +208,14 @@ class AuthController extends Controller
 
         $token = PersonalAccessToken::findToken($request->input('token'));
 
-        if (!$token || $token->cant('reset_password')) {
+        if (!$token || $token->cant('reset_password') || $token->tokenable->email_pengguna !== $request->email_pengguna) {
             return response()->json([
                 'errors' => [
-                    'token' => 'Token Penyedia Jasa tidak ditemukan'
+                    'token' => 'Token tidak valid atau tidak cocok dengan email'
                 ]
             ], 404);
         }
+
         $user->password = bcrypt($request->password);
         $user->save();
         $token->delete();
@@ -226,6 +225,7 @@ class AuthController extends Controller
             'message' => 'Password Berhasil Diganti.',
         ], 200);
     }
+
 
     public function updatePenyedia(Request $request)
     {
