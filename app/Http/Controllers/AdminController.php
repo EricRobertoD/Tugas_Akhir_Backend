@@ -75,6 +75,7 @@ class AdminController extends Controller
             'data' => $penyedia,
         ], 200);
     }
+    
     public function indexPenyedia()
     {
         $penyediaJasa = PenyediaJasa::with([
@@ -113,8 +114,6 @@ class AdminController extends Controller
                 'id_penyedia' => $penyedia->id_penyedia,
                 'nama_penyedia' => $penyedia->nama_penyedia,
                 'email_penyedia' => $penyedia->email_penyedia,
-                'nomor_telepon_penyedia' => $penyedia->nomor_telepon_penyedia,
-                'alamat_penyedia' => $penyedia->alamat_penyedia,
                 'nama_role' => $penyedia->nama_role,
                 'status_blokir' => $penyedia->status_blokir,
                 'transaksi_dibatalkan' => $transaksiDibatalkan,
