@@ -138,7 +138,7 @@ class SaldoController extends Controller
             'id_pengguna' => $user->id_pengguna ?? null,
             'jenis' => 'deposit',
             'total' => $total,
-            'status' => 'gagal',
+            'status' => 'pending',
             'tanggal' => Carbon::today()->format('Y-m-d'),
         ]);
 

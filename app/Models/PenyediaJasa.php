@@ -27,7 +27,7 @@ class PenyediaJasa extends Authenticatable
         'deskripsi_penyedia',
         'saldo',
         'status_blokir',
-        'minimal_persiapan'
+        'minimal_persiapan',
     ];
 
     protected $hidden = [
