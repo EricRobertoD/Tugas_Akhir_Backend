@@ -89,7 +89,7 @@ class PenyediaController extends Controller
     }
 
 
-    public function updateMinimalPersiapan(Request $request, $id_penyedia)
+    public function updateMinimalPersiapan(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'minimal_persiapan' => 'required|integer|min:0',
@@ -109,13 +109,7 @@ class PenyediaController extends Controller
             ], 401);
         }
 
-        if ($user->id_penyedia != $id_penyedia) {
-            return response()->json([
-                'message' => 'Unauthorized action.',
-            ], 403);
-        }
-
-        $penyedia = PenyediaJasa::find($id_penyedia);
+        $penyedia = PenyediaJasa::find($user->id_penyedia);
 
         if (!$penyedia) {
             return response()->json([
