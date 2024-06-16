@@ -140,6 +140,9 @@ Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
     Route::put('voucher/{voucher}', 'App\Http\Controllers\VoucherController@updateStatus');
     Route::delete('voucher/{voucher}', 'App\Http\Controllers\VoucherController@destroy');
 
+    Route::put('updateStatusPengguna/{id_pengguna}', 'App\Http\Controllers\AdminController@updateStatusPengguna');
+    Route::put('updateStatusPenyedia/{id_penyedia}', 'App\Http\Controllers\AdminController@updateStatusPenyedia');
+
 });
 
 
