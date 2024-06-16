@@ -67,7 +67,7 @@ class DetailTransaksiController extends Controller
             return response()->json(['message' => 'User not authenticated.'], 401);
         }
 
-        $transaksi = Transaksi::with('DetailTransaksi.Paket.PenyediaJasa')
+        $transaksi = Transaksi::with('DetailTransaksi.Paket.PenyediaJasa')->with('Pengguna')
             ->whereHas('DetailTransaksi', function ($query) use ($id) {
                 $query->where('invoice', $id);
             })
