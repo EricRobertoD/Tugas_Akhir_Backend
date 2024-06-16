@@ -47,6 +47,7 @@ class AuthController extends Controller
             'data' => $pengguna
         ], 200);
     }
+
     public function login(Request $request)
     {
         $loginData = $request->all();
@@ -125,6 +126,7 @@ class AuthController extends Controller
             return response()->json($response, 400);
         }
 
+        $registerData['minimal_persiapan'] = 0;
         $registerData['password'] = bcrypt($registerData['password']);
 
         $penyedia = PenyediaJasa::create($registerData);

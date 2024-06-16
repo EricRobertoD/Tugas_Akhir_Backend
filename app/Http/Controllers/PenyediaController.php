@@ -87,4 +87,49 @@ class PenyediaController extends Controller
             'data' => $penyedia,
         ], 200);
     }
+
+
+    public function updateMinimalPersiapan(Request $request, $id_penyedia)
+    {
+        $validator = Validator::make($request->all(), [
+            'minimal_persiapan' => 'required|integer|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        if ($user->id_penyedia != $id_penyedia) {
+            return response()->json([
+                'message' => 'Unauthorized action.',
+            ], 403);
+        }
+
+        $penyedia = PenyediaJasa::find($id_penyedia);
+
+        if (!$penyedia) {
+            return response()->json([
+                'message' => 'Penyedia not found.',
+            ], 404);
+        }
+
+        $penyedia->minimal_persiapan = $request->input('minimal_persiapan');
+        $penyedia->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Minimal persiapan updated successfully',
+            'data' => $penyedia,
+        ], 200);
+    }
 }

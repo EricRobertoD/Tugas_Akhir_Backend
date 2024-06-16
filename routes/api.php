@@ -88,6 +88,7 @@ Route::get('saldoPenyedia', 'App\Http\Controllers\SaldoController@indexPenyedia'
 Route::put('confirmDetailTransaksi/{confirmDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@confirmDetailTransaksi');
 Route::put('cancelDetailTransaksi/{cancelDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@cancelDetailTransaksi');
 
+Route::put('minimalPersiapan', 'App\Http\Controllers\PenyediaController@updateMinimalPersiapan');
 });
 
 
