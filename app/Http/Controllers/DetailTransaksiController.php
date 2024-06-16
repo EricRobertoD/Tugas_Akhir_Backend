@@ -67,18 +67,20 @@ class DetailTransaksiController extends Controller
             return response()->json(['message' => 'User not authenticated.'], 401);
         }
 
-        $detailTransaksi = DetailTransaksi::with('Paket.PenyediaJasa', 'Transaksi.Pengguna')
-            ->where('id_detail_transaksi', $id)
+        $transaksi = Transaksi::with('DetailTransaksi.Paket.PenyediaJasa')
+            ->whereHas('DetailTransaksi', function ($query) use ($id) {
+                $query->where('id_detail_transaksi', $id);
+            })
             ->first();
 
-        if (!$detailTransaksi) {
-            return response()->json(['message' => 'Detail transaksi not found.'], 404);
+        if (!$transaksi) {
+            return response()->json(['message' => 'Transaksi not found.'], 404);
         }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Faktur retrieved successfully',
-            'data' => $detailTransaksi,
+            'data' => $transaksi,
         ], 200);
     }
 
