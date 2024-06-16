@@ -69,7 +69,7 @@ class DetailTransaksiController extends Controller
 
         $transaksi = Transaksi::with('DetailTransaksi.Paket.PenyediaJasa')
             ->whereHas('DetailTransaksi', function ($query) use ($id) {
-                $query->where('id_detail_transaksi', $id);
+                $query->where('invoice', $id);
             })
             ->first();
 

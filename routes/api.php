@@ -124,7 +124,7 @@ Route::middleware(['auth:sanctum', 'ability:pengguna'])->group(function(){
 
     Route::post('applyVoucher', 'App\Http\Controllers\VoucherController@applyVoucher');
 
-    Route::get('/api/faktur/{id}', 'App\Http\Controllers\DetailTransaksiController@getFaktur');
+    Route::get('faktur/{id}', 'App\Http\Controllers\DetailTransaksiController@getFaktur');
 
 });
 
