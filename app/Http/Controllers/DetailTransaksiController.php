@@ -60,6 +60,28 @@ class DetailTransaksiController extends Controller
         ], 200);
     }
 
+    public function getFaktur($id)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated.'], 401);
+        }
+
+        $detailTransaksi = DetailTransaksi::with('Paket.PenyediaJasa', 'Transaksi.Pengguna')
+            ->where('id_detail_transaksi', $id)
+            ->first();
+
+        if (!$detailTransaksi) {
+            return response()->json(['message' => 'Detail transaksi not found.'], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Faktur retrieved successfully',
+            'data' => $detailTransaksi,
+        ], 200);
+    }
+
     public function store(Request $request)
     {
         $id_pengguna = auth()->user()->id_pengguna;
