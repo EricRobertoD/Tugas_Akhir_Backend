@@ -47,45 +47,58 @@ class AuthController extends Controller
             'data' => $pengguna
         ], 200);
     }
-
     public function login(Request $request)
     {
         $loginData = $request->all();
         $email = $loginData['email'];
 
         $pengguna = Pengguna::where('email_pengguna', $email)->first();
+        if ($pengguna) {
+            if ($pengguna->status_blokir === "true") {
+                return response(['message' => 'Maaf akun Anda diblokir'], 401);
+            }
+
+            if (Auth::guard('pengguna')->attempt(['email_pengguna' => $email, 'password' => $loginData['password']])) {
+                $user = Auth::guard('pengguna')->user();
+                $token = $user->createToken('Authentication Token', ['pengguna'])->plainTextToken;
+
+                return response([
+                    'message' => 'Authenticated as pengguna',
+                    'data' => [
+                        'status' => 'success',
+                        'User' => $user,
+                        'token_type' => 'Bearer',
+                        'access_token' => $token,
+                    ],
+                ]);
+            }
+        }
+
         $penyedia = PenyediaJasa::where('email_penyedia', $email)->first();
+        if ($penyedia) {
+            if ($penyedia->status_blokir === "true") {
+                return response(['message' => 'Maaf akun Anda diblokir'], 401);
+            }
 
-        if ($pengguna && Auth::guard('pengguna')->attempt(['email_pengguna' => $email, 'password' => $loginData['password']])) {
-            $user = Auth::guard('pengguna')->user();
-            $token = $user->createToken('Authentication Token', ['pengguna'])->plainTextToken;
+            if (Auth::guard('penyedia')->attempt(['email_penyedia' => $email, 'password' => $loginData['password']])) {
+                $user = Auth::guard('penyedia')->user();
+                $token = $user->createToken('Authentication Token', ['penyedia'])->plainTextToken;
 
-            return response([
-                'message' => 'Authenticated as pengguna',
-                'data' => [
-                    'status' => 'success',
-                    'User' => $user,
-                    'token_type' => 'Bearer',
-                    'access_token' => $token,
-                ],
-            ]);
-        } elseif ($penyedia && Auth::guard('penyedia')->attempt(['email_penyedia' => $email, 'password' => $loginData['password']])) {
-            $user = Auth::guard('penyedia')->user();
-            $token = $user->createToken('Authentication Token', ['penyedia'])->plainTextToken;
-
-            return response([
-                'message' => 'Authenticated as penyedia',
-                'data' => [
-                    'status' => 'success',
-                    'User' => $user,
-                    'token_type' => 'Bearer',
-                    'access_token' => $token,
-                ],
-            ]);
+                return response([
+                    'message' => 'Authenticated as penyedia',
+                    'data' => [
+                        'status' => 'success',
+                        'User' => $user,
+                        'token_type' => 'Bearer',
+                        'access_token' => $token,
+                    ],
+                ]);
+            }
         }
 
         return response(['message' => 'Invalid credentials'], 401);
     }
+
 
     public function registerPenyedia(Request $request)
     {
@@ -247,7 +260,7 @@ class AuthController extends Controller
 
         $validate = Validator::make($request->all(), [
             'nama_penyedia' => 'required',
-            'email_penyedia' => 'required|string|email|max:255|unique:penyedia_jasa,email_penyedia,' . $id_penyedia . ',id_penyedia',
+            'email_penyedia' => 'required|string|email|max:255|unique:penyedia_jasa,email_penyedia,' . $id_penyedia . ',id_penyedia|unique:pengguna,email_pengguna',
             'nomor_telepon_penyedia' => 'required',
             'nomor_whatsapp_penyedia' => 'required',
             'alamat_penyedia' => 'required',

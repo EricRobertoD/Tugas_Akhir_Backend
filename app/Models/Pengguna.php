@@ -22,6 +22,7 @@ class Pengguna extends Authenticatable
         'nomor_whatsapp_pengguna',
         'alamat_pengguna',
         'saldo',
+        'status_blokir',
     ];
 
     /**
