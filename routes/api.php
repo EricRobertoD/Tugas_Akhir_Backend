@@ -143,6 +143,8 @@ Route::middleware(['auth:sanctum', 'ability:admin'])->group(function(){
     Route::put('updateStatusPengguna/{id_pengguna}', 'App\Http\Controllers\AdminController@updateStatusPengguna');
     Route::put('updateStatusPenyedia/{id_penyedia}', 'App\Http\Controllers\AdminController@updateStatusPenyedia');
 
+    Route::get('indexPenyedia', 'App\Http\Controllers\AdminController@indexPenyedia');
+
 });
 
 
