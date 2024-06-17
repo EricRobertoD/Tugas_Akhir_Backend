@@ -110,7 +110,7 @@ class PaketController extends Controller
     
     public function getPaketsByPenyedia($id_penyedia)
     {
-        $pakets = Paket::where('id_penyedia', $id_penyedia)->get();
+        $pakets = Paket::where('id_penyedia', $id_penyedia)->with('PenyediaJasa')->get();
 
         if ($pakets->isEmpty()) {
             return response()->json([
