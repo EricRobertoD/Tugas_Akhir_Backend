@@ -120,11 +120,11 @@ class DetailTransaksiController extends Controller
     {
         $id_pengguna = auth()->user()->id_pengguna;
         $validator = Validator::make($request->all(), [
-            'id_paket' => 'equired',
-            'subtotal' => 'equired',
-            'tanggal_pelaksanaan' => 'equired|date',
-            'jam_mulai' => 'equired',
-            'jam_selesai' => 'equired',
+            'id_paket' => 'required',
+            'subtotal' => 'required',
+            'tanggal_pelaksanaan' => 'required|date',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required',
         ]);
 
         if ($validator->fails()) {
