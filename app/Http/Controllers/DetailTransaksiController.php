@@ -121,28 +121,34 @@ class DetailTransaksiController extends Controller
         $id_pengguna = auth()->user()->id_pengguna;
         $validator = Validator::make($request->all(), [
             'id_paket' => 'required',
-            'subtotal' => 'required',
+            'subtotal' => 'required|numeric',
             'tanggal_pelaksanaan' => 'required|date',
-            'jam_mulai' => 'required',
-            'jam_selesai' => 'required',
+            'jam_mulai' => 'required|date_format:H:i',
+            'jam_selesai' => 'required|date_format:H:i',
         ]);
-
+    
         if ($validator->fails()) {
             return response([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 400);
         }
-
+    
         $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
-
+        $jam_mulai = Carbon::createFromFormat('H:i', $request->input('jam_mulai'));
+        $jam_selesai = Carbon::createFromFormat('H:i', $request->input('jam_selesai'));
+    
+        $total_hours = ceil($jam_mulai->diffInMinutes($jam_selesai) / 60);
+        $subtotal_per_hour = $request->input('subtotal');
+        $subtotal = $subtotal_per_hour * $total_hours;
+    
         $transaksi = Transaksi::where('id_pengguna', $id_pengguna)
             ->whereNull('status_transaksi')
             ->whereHas('detailTransaksi', function ($query) use ($tanggal_pelaksanaan) {
                 $query->where('tanggal_pelaksanaan', $tanggal_pelaksanaan);
             })
             ->first();
-
+    
         if (!$transaksi) {
             $transaksi = Transaksi::create([
                 'id_pengguna' => $id_pengguna,
@@ -151,20 +157,20 @@ class DetailTransaksiController extends Controller
                 'tanggal_pelaksanaan' => $tanggal_pelaksanaan,
             ]);
         }
-
+    
         $detailTransaksi = DetailTransaksi::create([
             'id_pengguna' => $id_pengguna,
             'id_transaksi' => $transaksi->id_transaksi,
             'id_paket' => $request->input('id_paket'),
-            'subtotal' => $request->input('subtotal'),
+            'subtotal' => $subtotal,
             'tanggal_pelaksanaan' => $request->input('tanggal_pelaksanaan'),
             'jam_mulai' => $request->input('jam_mulai'),
             'jam_selesai' => $request->input('jam_selesai'),
         ]);
-
-        $transaksi->total_harga += $request->input('subtotal');
+    
+        $transaksi->total_harga += $subtotal;
         $transaksi->save();
-
+    
         return response([
             'status' => 'success',
             'message' => 'Tambah Keranjang successfully',
