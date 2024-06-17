@@ -121,26 +121,37 @@ class DetailTransaksiController extends Controller
         $id_pengguna = auth()->user()->id_pengguna;
         $validator = Validator::make($request->all(), [
             'id_paket' => 'required',
-            'subtotal' => 'required',
+            'subtotal' => 'required|numeric',
             'tanggal_pelaksanaan' => 'required|date',
-            'jam_mulai' => 'required',
-            'jam_selesai' => 'required',
+            'jam_mulai' => 'required|date_format:H:i',
+            'jam_selesai' => 'required|date_format:H:i',
         ]);
 
         if ($validator->fails()) {
             return response([
-                'essage' => 'Validation failed',
+                'message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 400);
         }
 
         $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
-        $jam_mulai = Carbon::parse($request->input('jam_mulai'));
-        $jam_selesai = Carbon::parse($request->input('jam_selesai'));
+        $jam_mulai = Carbon::createFromFormat('H:i', $request->input('jam_mulai'));
+        $jam_selesai = Carbon::createFromFormat('H:i', $request->input('jam_selesai'));
 
-        $duration = $jam_selesai->diffInHours($jam_mulai);
+        if ($jam_selesai->lessThanOrEqualTo($jam_mulai)) {
+            return response([
+                'message' => 'Validation failed',
+                'errors' => [
+                    'jam_selesai' => ['The jam selesai must be after jam mulai.']
+                ],
+            ], 400);
+        }
+
+        $total_minutes = $jam_mulai->diffInMinutes($jam_selesai);
+        $total_hours = ceil($total_minutes / 60);
+
         $subtotal_per_hour = $request->input('subtotal');
-        $subtotal = ceil($duration) * $subtotal_per_hour;
+        $subtotal = $subtotal_per_hour * $total_hours;
 
         $transaksi = Transaksi::where('id_pengguna', $id_pengguna)
             ->whereNull('status_transaksi')
