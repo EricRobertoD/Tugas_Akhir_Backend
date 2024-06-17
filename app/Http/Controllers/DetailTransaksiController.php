@@ -121,22 +121,22 @@ class DetailTransaksiController extends Controller
         $id_pengguna = auth()->user()->id_pengguna;
         $validator = Validator::make($request->all(), [
             'id_paket' => 'required',
-            'subtotal' => 'required|numeric',
+            'subtotal' => 'required',
             'tanggal_pelaksanaan' => 'required|date',
-            'jam_mulai' => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response([
-                'message' => 'Validation failed',
+                'essage' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 400);
         }
 
         $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
-        $jam_mulai = Carbon::createFromFormat('H:i', $request->input('jam_mulai'));
-        $jam_selesai = Carbon::createFromFormat('H:i', $request->input('jam_selesai'));
+        $jam_mulai = Carbon::parse($request->input('jam_mulai'));
+        $jam_selesai = Carbon::parse($request->input('jam_selesai'));
 
         if ($jam_selesai->lessThanOrEqualTo($jam_mulai)) {
             return response([
