@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailTransaksi;
+use App\Models\Paket;
 use App\Models\Saldo;
 use App\Models\Transaksi;
 use Carbon\Carbon;
@@ -119,7 +120,6 @@ class DetailTransaksiController extends Controller
     public function tambahKeranjang(Request $request)
     {
         $id_pengguna = auth()->user()->id_pengguna;
-        $user_role = auth()->user()->role;
 
         $validator_rules = [
             'id_paket' => 'required',
@@ -127,7 +127,10 @@ class DetailTransaksiController extends Controller
             'tanggal_pelaksanaan' => 'required|date',
         ];
 
-        if ($user_role !== 'Katering') {
+        $paket = Paket::findOrFail($request->input('id_paket'));
+        $penyedia = $paket->penyediaJasa;
+
+        if ($penyedia->nama_role !== 'Katering') {
             $validator_rules['jam_mulai'] = 'required';
             $validator_rules['jam_selesai'] = 'required';
         } else {
@@ -146,9 +149,9 @@ class DetailTransaksiController extends Controller
         $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
         $subtotal = 0;
 
-        if ($user_role === 'Katering') {
+        if ($penyedia->nama_role === 'Katering') {
             $pack = $request->input('pack');
-            $subtotal_per_pack = $request->input('subtotal');
+            $subtotal_per_pack = $paket->harga_paket;
             $subtotal = $subtotal_per_pack * $pack;
         } else {
             $jam_mulai = Carbon::parse($request->input('jam_mulai'));
@@ -191,9 +194,9 @@ class DetailTransaksiController extends Controller
             'id_paket' => $request->input('id_paket'),
             'subtotal' => $subtotal,
             'tanggal_pelaksanaan' => $request->input('tanggal_pelaksanaan'),
-            'jam_mulai' => $user_role !== 'Katering' ? $request->input('jam_mulai') : null,
-            'jam_selesai' => $user_role !== 'Katering' ? $request->input('jam_selesai') : null,
-            'pack' => $user_role === 'Katering' ? $request->input('pack') : null,
+            'jam_mulai' => $penyedia->nama_role !== 'Katering' ? $request->input('jam_mulai') : null,
+            'jam_selesai' => $penyedia->nama_role !== 'Katering' ? $request->input('jam_selesai') : null,
+            'pack' => $penyedia->nama_role === 'Katering' ? $request->input('pack') : null,
         ]);
 
         $transaksi->total_harga += $subtotal;
