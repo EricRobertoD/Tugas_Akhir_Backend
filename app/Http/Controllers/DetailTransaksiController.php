@@ -134,9 +134,19 @@ class DetailTransaksiController extends Controller
             ], 400);
         }
     
-        $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
-        $jam_mulai = Carbon::createFromFormat('H:i', $request->input('jam_mulai'));
-        $jam_selesai = Carbon::createFromFormat('H:i', $request->input('jam_selesai'));
+        try {
+            $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
+            $jam_mulai = Carbon::createFromFormat('H:i', $request->input('jam_mulai'));
+            $jam_selesai = Carbon::createFromFormat('H:i', $request->input('jam_selesai'));
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Invalid time format',
+                'errors' => [
+                    'jam_mulai' => ['The jam mulai field must match the format H:i.'],
+                    'jam_selesai' => ['The jam selesai field must match the format H:i.']
+                ],
+            ], 400);
+        }
     
         $total_hours = ceil($jam_mulai->diffInMinutes($jam_selesai) / 60);
         $subtotal_per_hour = $request->input('subtotal');
