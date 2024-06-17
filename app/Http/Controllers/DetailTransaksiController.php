@@ -194,7 +194,7 @@ class DetailTransaksiController extends Controller
             'id_paket' => $request->input('id_paket'),
             'subtotal' => $subtotal,
             'tanggal_pelaksanaan' => $request->input('tanggal_pelaksanaan'),
-            'jam_mulai' => $penyedia->nama_role !== 'Katering' ? $request->input('jam_mulai') : null,
+            'jam_mulai' => $request->input('jam_mulai'),
             'jam_selesai' => $penyedia->nama_role !== 'Katering' ? $request->input('jam_selesai') : null,
             'pack' => $penyedia->nama_role === 'Katering' ? $request->input('pack') : null,
         ]);
