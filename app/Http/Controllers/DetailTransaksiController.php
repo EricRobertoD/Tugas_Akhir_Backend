@@ -119,39 +119,55 @@ class DetailTransaksiController extends Controller
     public function tambahKeranjang(Request $request)
     {
         $id_pengguna = auth()->user()->id_pengguna;
-        $validator = Validator::make($request->all(), [
+        $user_role = auth()->user()->role;
+
+        $validator_rules = [
             'id_paket' => 'required',
             'subtotal' => 'required',
             'tanggal_pelaksanaan' => 'required|date',
-            'jam_mulai' => 'required',
-            'jam_selesai' => 'required',
-        ]);
+        ];
+
+        if ($user_role !== 'Katering') {
+            $validator_rules['jam_mulai'] = 'required';
+            $validator_rules['jam_selesai'] = 'required';
+        } else {
+            $validator_rules['pack'] = 'required|integer|min:1';
+        }
+
+        $validator = Validator::make($request->all(), $validator_rules);
 
         if ($validator->fails()) {
             return response([
-                'essage' => 'Validation failed',
+                'message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 400);
         }
 
         $tanggal_pelaksanaan = $request->input('tanggal_pelaksanaan');
-        $jam_mulai = Carbon::parse($request->input('jam_mulai'));
-        $jam_selesai = Carbon::parse($request->input('jam_selesai'));
+        $subtotal = 0;
 
-        if ($jam_selesai->lessThanOrEqualTo($jam_mulai)) {
-            return response([
-                'message' => 'Validation failed',
-                'errors' => [
-                    'jam_selesai' => ['The jam selesai must be after jam mulai.']
-                ],
-            ], 400);
+        if ($user_role === 'Katering') {
+            $pack = $request->input('pack');
+            $subtotal_per_pack = $request->input('subtotal');
+            $subtotal = $subtotal_per_pack * $pack;
+        } else {
+            $jam_mulai = Carbon::parse($request->input('jam_mulai'));
+            $jam_selesai = Carbon::parse($request->input('jam_selesai'));
+
+            if ($jam_selesai->lessThanOrEqualTo($jam_mulai)) {
+                return response([
+                    'message' => 'Validation failed',
+                    'errors' => [
+                        'jam_selesai' => ['The jam selesai must be after jam mulai.']
+                    ],
+                ], 400);
+            }
+
+            $total_minutes = $jam_mulai->diffInMinutes($jam_selesai);
+            $total_hours = ceil($total_minutes / 60);
+            $subtotal_per_hour = $request->input('subtotal');
+            $subtotal = $subtotal_per_hour * $total_hours;
         }
-
-        $total_minutes = $jam_mulai->diffInMinutes($jam_selesai);
-        $total_hours = ceil($total_minutes / 60);
-
-        $subtotal_per_hour = $request->input('subtotal');
-        $subtotal = $subtotal_per_hour * $total_hours;
 
         $transaksi = Transaksi::where('id_pengguna', $id_pengguna)
             ->whereNull('status_transaksi')
@@ -175,8 +191,9 @@ class DetailTransaksiController extends Controller
             'id_paket' => $request->input('id_paket'),
             'subtotal' => $subtotal,
             'tanggal_pelaksanaan' => $request->input('tanggal_pelaksanaan'),
-            'jam_mulai' => $request->input('jam_mulai'),
-            'jam_selesai' => $request->input('jam_selesai'),
+            'jam_mulai' => $user_role !== 'Katering' ? $request->input('jam_mulai') : null,
+            'jam_selesai' => $user_role !== 'Katering' ? $request->input('jam_selesai') : null,
+            'pack' => $user_role === 'Katering' ? $request->input('pack') : null,
         ]);
 
         $transaksi->total_harga += $subtotal;
