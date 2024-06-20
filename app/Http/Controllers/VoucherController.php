@@ -70,7 +70,6 @@ class VoucherController extends Controller
         }
     
         $validator = Validator::make($request->all(), [
-            'status' => 'required',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date',
             'persen' => 'required|numeric|min:0|max:100',
@@ -82,8 +81,7 @@ class VoucherController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-    
-        $voucher->status = $request->input('status');
+        
         $voucher->tanggal_mulai = $request->input('tanggal_mulai');
         $voucher->tanggal_selesai = $request->input('tanggal_selesai');
         $voucher->persen = $request->input('persen');
