@@ -30,7 +30,7 @@ class GambarPortoController extends Controller
     {
         $id_penyedia = auth()->user()->id_penyedia;
         $validator = Validator::make($request->all(), [
-            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
         ]);
 
         if ($validator->fails()) {
@@ -79,7 +79,7 @@ class GambarPortoController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
         ]);
 
         if ($validator->fails()) {
