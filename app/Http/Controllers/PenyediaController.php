@@ -56,7 +56,7 @@ class PenyediaController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'gambar_penyedia' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'gambar_penyedia' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ]);
 
         if ($validator->fails()) {

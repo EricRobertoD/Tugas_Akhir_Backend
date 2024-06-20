@@ -40,7 +40,7 @@ class PenggunaController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'gambar_pengguna' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'gambar_pengguna' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ]);
 
         if ($validator->fails()) {
