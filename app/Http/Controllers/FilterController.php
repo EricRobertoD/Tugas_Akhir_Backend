@@ -70,8 +70,11 @@ class FilterController extends Controller
             ->whereHas('Paket', function ($query) use ($startBudget, $endBudget) {
                 $query->where('harga_paket', '>=', $startBudget)
                     ->where('harga_paket', '<=', $endBudget);
+            })
+            ->where(function ($query) use ($date) {
+                $query->where('minimal_persiapan', '<=', $date->diffInDays(Carbon::now()));
             });
-
+        
         if ($provinsiPenyedia !== 'Semua') {
             $penyediaJasa->where('provinsi_penyedia', $provinsiPenyedia);
         }
