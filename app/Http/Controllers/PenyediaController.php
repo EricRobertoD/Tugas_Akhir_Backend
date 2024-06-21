@@ -99,7 +99,11 @@ class PenyediaController extends Controller
 
                 if ($penyedia->gambar_penyedia !== 'noimage.jpg' && !is_null($penyedia->gambar_penyedia)) {
                     $objectName = 'gambar/' . $penyedia->gambar_penyedia;
-                    $bucket->object($objectName)->delete();
+                    $object = $bucket->object($objectName);
+                    
+                    if ($object->exists()) {
+                        $object->delete();
+                    }
                 }
 
                 $fileContents = file_get_contents($file->getPathname());
