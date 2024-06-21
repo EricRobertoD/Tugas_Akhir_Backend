@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Saldo;
 use Carbon\Carbon;
+use Google\Cloud\Storage\StorageClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -174,7 +175,7 @@ class SaldoController extends Controller
         ], 201);
     }
 
-    
+
     public function confirmDepositMidtrans($id)
     {
         $saldo = Saldo::find($id);
@@ -266,7 +267,7 @@ class SaldoController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'gambar_saldo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'gambar_saldo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -276,17 +277,47 @@ class SaldoController extends Controller
             ], 400);
         }
 
-        if ($request->hasFile('gambar_saldo')) {
-            $filenameWithExt = $request->file('gambar_saldo')->getClientOriginalName();
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $filenameWithExt = $file->getClientOriginalName();
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            $extension = $request->file('gambar_saldo')->getClientOriginalExtension();
+            $extension = $file->getClientOriginalExtension();
             $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-            $path = $request->file('gambar_saldo')->storeAs('gambar_saldo', $fileNameToStore, 'public');
-        } else {
-            $fileNameToStore = 'noimage.jpg';
+
+            try {
+                $privateKey = str_replace("\\n", "\n", getenv('private_key'));
+                $storage = new StorageClient([
+                    'projectId' => getenv('PROJECT_ID'),
+                    'keyFile' => [
+                        'type' => getenv('type'),
+                        'project_id' => getenv('project_id'),
+                        'private_key_id' => getenv('private_key_id'),
+                        'private_key' => $privateKey,
+                        'client_email' => getenv('client_email'),
+                        'client_id' => getenv('client_id'),
+                        'auth_uri' => getenv('auth_uri'),
+                        'token_uri' => getenv('token_uri'),
+                        'auth_provider_x509_cert_url' => getenv('auth_provider_x509_cert_url'),
+                        'client_x509_cert_url' => getenv('client_x509_cert_url'),
+                        'universe_domain' => getenv('universe_domain'),
+                    ],
+                ]);
+
+                $bucket = $storage->bucket('tugasakhir_11007');
+
+                $fileContents = file_get_contents($file->getPathname());
+
+                $object = $bucket->upload($fileContents, [
+                    'name' => 'gambar/' . $fileNameToStore
+                ]);
+            } catch (\Exception $e) {
+                return response([
+                    'status' => 'error',
+                    'message' => 'File upload failed',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
         }
-
-
         $user->saldo -= $saldo->total;
         $user->save();
         $saldo->status = 'berhasil';

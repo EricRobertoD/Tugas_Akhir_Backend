@@ -78,7 +78,7 @@ class GoogleAnalyticsService
 
         $dimensions = [
             (new Dimension())->setName('date'),
-            (new Dimension())->setName('customEvent:role'), // Custom dimension for role
+            (new Dimension())->setName('customEvent:role'),
         ];
 
         $metrics = [

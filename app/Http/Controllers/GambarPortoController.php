@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\GambarPorto;
+use Google\Cloud\Storage\StorageClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -28,83 +30,144 @@ class GambarPortoController extends Controller
 
     public function store(Request $request)
     {
-        $id_penyedia = auth()->user()->id_penyedia;
         $validator = Validator::make($request->all(), [
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ]);
-
+    
         if ($validator->fails()) {
             return response([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 400);
         }
-
+    
+        $fileNameToStore = 'noimage.jpg';
+    
         if ($request->hasFile('gambar')) {
-            $filenameWithExt = $request->file('gambar')->getClientOriginalName();
+            $file = $request->file('gambar');
+            $filenameWithExt = $file->getClientOriginalName();
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            $extension = $request->file('gambar')->getClientOriginalExtension();
+            $extension = $file->getClientOriginalExtension();
             $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-            $path = $request->file('gambar')->storeAs('gambar', $fileNameToStore, 'public');
-        } else {
-            $fileNameToStore = 'noimage.jpg';
+    
+            try {
+                $privateKey = str_replace("\\n", "\n", getenv('private_key'));
+                $storage = new StorageClient([
+                    'projectId' => getenv('PROJECT_ID'),
+                    'keyFile' => [
+                        'type' => getenv('type'),
+                        'project_id' => getenv('project_id'),
+                        'private_key_id' => getenv('private_key_id'),
+                        'private_key' => $privateKey,
+                        'client_email' => getenv('client_email'),
+                        'client_id' => getenv('client_id'),
+                        'auth_uri' => getenv('auth_uri'),
+                        'token_uri' => getenv('token_uri'),
+                        'auth_provider_x509_cert_url' => getenv('auth_provider_x509_cert_url'),
+                        'client_x509_cert_url' => getenv('client_x509_cert_url'),
+                        'universe_domain' => getenv('universe_domain'),
+                    ],
+                ]);
+    
+                $bucket = $storage->bucket('tugasakhir_11007');
+    
+                $fileContents = file_get_contents($file->getPathname());
+    
+                $object = $bucket->upload($fileContents, [
+                    'name' => 'gambar/' . $fileNameToStore
+                ]);
+    
+                $gambar = GambarPorto::create([
+                    'id_penyedia' => auth()->user()->id_penyedia,
+                    'gambar' => $fileNameToStore,
+                ]);
+    
+            } catch (\Exception $e) {
+                return response([
+                    'status' => 'error',
+                    'message' => 'File upload failed',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
         }
-
-        $gambar = GambarPorto::create([
-            'id_penyedia' => $id_penyedia,
-            'gambar' => $fileNameToStore,
-        ]);
-
+    
         return response([
             'status' => 'success',
             'message' => 'Gambar berhasil diunggah',
-            'data' => $gambar,
+            'data' => $fileNameToStore,
         ], 201);
     }
 
     public function update(Request $request, $id)
     {
         $gambar = GambarPorto::find($id);
-
+    
         if (!$gambar) {
             return response()->json([
                 'message' => 'Gambar not found.',
             ], 404);
         }
-
+    
         if (auth()->user()->id_penyedia !== $gambar->id_penyedia) {
             return response()->json([
                 'message' => 'Unauthorized to edit this gambar.',
             ], 403);
         }
-
+    
         $validator = Validator::make($request->all(), [
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ]);
-
+    
         if ($validator->fails()) {
             return response([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 400);
         }
-
+    
         if ($request->hasFile('gambar')) {
-            $filenameWithExt = $request->file('gambar')->getClientOriginalName();
+            $file = $request->file('gambar');
+            $filenameWithExt = $file->getClientOriginalName();
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            $extension = $request->file('gambar')->getClientOriginalExtension();
+            $extension = $file->getClientOriginalExtension();
             $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-            $path = $request->file('gambar')->storeAs('gambar', $fileNameToStore, 'public');
-
-            if ($gambar->gambar !== 'noimage.jpg') {
-                Storage::disk('public')->delete('gambar/' . $gambar->gambar);
+    
+            try {
+                $privateKey = str_replace("\\n", "\n", getenv('private_key'));
+                $storage = new StorageClient([
+                    'projectId' => getenv('PROJECT_ID'),
+                    'keyFile' => [
+                        'type' => getenv('type'),
+                        'project_id' => getenv('project_id'),
+                        'private_key_id' => getenv('private_key_id'),
+                        'private_key' => $privateKey,
+                        'client_email' => getenv('client_email'),
+                        'client_id' => getenv('client_id'),
+                        'auth_uri' => getenv('auth_uri'),
+                        'token_uri' => getenv('token_uri'),
+                        'auth_provider_x509_cert_url' => getenv('auth_provider_x509_cert_url'),
+                        'client_x509_cert_url' => getenv('client_x509_cert_url'),
+                        'universe_domain' => getenv('universe_domain'),
+                    ],
+                ]);
+    
+                $bucket = $storage->bucket('tugasakhir_11007');
+                $fileContents = file_get_contents($file->getPathname());
+                $object = $bucket->upload($fileContents, [
+                    'name' => 'gambar/' . $fileNameToStore
+                ]);
+                $gambar->gambar = $fileNameToStore;
+            } catch (\Exception $e) {
+                return response([
+                    'status' => 'error',
+                    'message' => 'File upload failed',
+                    'error' => $e->getMessage(),
+                ], 500);
             }
-
-            $gambar->gambar = $fileNameToStore;
         }
-
+    
         $gambar->save();
-
+    
         return response()->json([
             'message' => 'Gambar updated successfully.',
             'data' => $gambar,

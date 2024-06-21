@@ -39,7 +39,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
         ],
@@ -56,12 +56,20 @@ return [
             'throw' => false,
         ],
 
-        
+
         'images' => [
             'driver' => 'local',
-            'root' => storage_path('app/images'), // Define the root path for storing files
-            'url' => env('APP_URL').'/storage/images', // Define the URL to access stored files
+            'root' => storage_path('app/images'),
+            'url' => env('APP_URL') . '/storage/images',
             'visibility' => 'public',
+        ],
+        'gcs' => [
+            'driver' => 'gcs',
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'tugas-akhir-423421'),
+            'key_file' => base_path(env('GOOGLE_CLOUD_KEY_FILE', 'storage/service-account.json')),
+            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', 'tugasakhir_11007'),
+            'path_prefix' => null,
+            'storage_api_uri' => null,
         ],
 
     ],

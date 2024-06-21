@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengguna;
+use Google\Cloud\Storage\StorageClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -28,49 +29,86 @@ class PenggunaController extends Controller
         ], 200);
     }
 
-    public function updateGambar(Request $request)
-    {
-        $id_pengguna = auth()->user()->id_pengguna;
-        $pengguna = Pengguna::find($id_pengguna);
+    
+public function updateGambar(Request $request)
+{
+    $id_pengguna = auth()->user()->id_pengguna;
+    $pengguna = Pengguna::find($id_pengguna);
 
-        if (!$pengguna) {
-            return response()->json([
-                'message' => 'Pengguna not found.',
-            ], 404);
-        }
+    if (!$pengguna) {
+        return response()->json([
+            'message' => 'Pengguna not found.',
+        ], 404);
+    }
 
-        $validator = Validator::make($request->all(), [
-            'gambar_pengguna' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-        ]);
+    $validator = Validator::make($request->all(), [
+        'gambar_pengguna' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+    ]);
 
-        if ($validator->fails()) {
-            return response([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 400);
-        }
+    if ($validator->fails()) {
+        return response([
+            'message' => 'Validation failed',
+            'errors' => $validator->errors(),
+        ], 400);
+    }
 
-        if ($request->hasFile('gambar_pengguna')) {
-            $filenameWithExt = $request->file('gambar_pengguna')->getClientOriginalName();
-            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            $extension = $request->file('gambar_pengguna')->getClientOriginalExtension();
-            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-            $path = $request->file('gambar_pengguna')->storeAs('gambar', $fileNameToStore, 'public');
+    $fileNameToStore = $pengguna->gambar_pengguna;
+
+    if ($request->hasFile('gambar_pengguna')) {
+        $file = $request->file('gambar_pengguna');
+        $filenameWithExt = $file->getClientOriginalName();
+        $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+
+        try {
+            $privateKey = str_replace("\\n", "\n", getenv('private_key'));
+            $storage = new StorageClient([
+                'projectId' => getenv('PROJECT_ID'),
+                'keyFile' => [
+                    'type' => getenv('type'),
+                    'project_id' => getenv('project_id'),
+                    'private_key_id' => getenv('private_key_id'),
+                    'private_key' => $privateKey,
+                    'client_email' => getenv('client_email'),
+                    'client_id' => getenv('client_id'),
+                    'auth_uri' => getenv('auth_uri'),
+                    'token_uri' => getenv('token_uri'),
+                    'auth_provider_x509_cert_url' => getenv('auth_provider_x509_cert_url'),
+                    'client_x509_cert_url' => getenv('client_x509_cert_url'),
+                    'universe_domain' => getenv('universe_domain'),
+                ],
+            ]);
+
+            $bucket = $storage->bucket('tugasakhir_11007');
 
             if ($pengguna->gambar_pengguna !== 'noimage.jpg' && !is_null($pengguna->gambar_pengguna)) {
-                Storage::disk('public')->delete('gambar/' . $pengguna->gambar_pengguna);
+                $objectName = 'gambar/' . $pengguna->gambar_pengguna;
+                $bucket->object($objectName)->delete();
             }
+            $fileContents = file_get_contents($file->getPathname());
+            $object = $bucket->upload($fileContents, [
+                'name' => 'gambar/' . $fileNameToStore
+            ]);
 
             $pengguna->gambar_pengguna = $fileNameToStore;
+            $pengguna->save();
+
+        } catch (\Exception $e) {
+            return response([
+                'status' => 'error',
+                'message' => 'File upload failed',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $pengguna->save();
-
-        return response()->json([
-            'message' => 'Gambar updated successfully.',
-            'data' => $pengguna,
-        ], 200);
     }
+
+    return response([
+        'status' => 'success',
+        'message' => 'Gambar updated successfully.',
+        'data' => $fileNameToStore,
+    ], 200);
+}
 
     
     public function updatePengguna(Request $request)
