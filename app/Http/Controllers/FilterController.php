@@ -72,7 +72,7 @@ class FilterController extends Controller
                     ->where('harga_paket', '<=', $endBudget);
             })
             ->where(function ($query) use ($date) {
-                $query->where('minimal_persiapan', '>=', $date->diffInDays(Carbon::now()));
+                $query->where('minimal_persiapan', '>=', Carbon::now()->diffInDays($date));
             });
         
         if ($provinsiPenyedia !== 'Semua') {
