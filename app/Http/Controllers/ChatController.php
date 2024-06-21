@@ -158,7 +158,6 @@ class ChatController extends Controller
         ], 200);
     }
 
-
     public function listPenggunaForPenyedia(Request $request)
     {
         $id_penyedia = auth()->user()->id_penyedia;
