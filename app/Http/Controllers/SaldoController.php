@@ -277,8 +277,10 @@ class SaldoController extends Controller
             ], 400);
         }
 
-        if ($request->hasFile('gambar')) {
-            $file = $request->file('gambar');
+        $fileNameToStore = 'noimage.jpg';
+        
+        if ($request->hasFile('gambar_saldo')) {
+            $file = $request->file('gambar_saldo');
             $filenameWithExt = $file->getClientOriginalName();
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
