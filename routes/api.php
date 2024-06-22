@@ -47,6 +47,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('midtrans/webhook', 'App\Http\Controllers\MidtransWebhookController@handle');
     Route::post('/confirmDepositMidtrans/{id}', 'App\Http\Controllers\SaldoController@confirmDepositMidtrans');
 
+    Route::post('ulasanPenyedia', 'App\Http\Controllers\UlasanController@indexUlasanPenyedia');
+    
+
 });
 
 Route::middleware(['auth:sanctum', 'ability:penyedia'])->group(function(){

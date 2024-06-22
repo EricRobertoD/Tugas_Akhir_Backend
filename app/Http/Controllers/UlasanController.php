@@ -59,4 +59,34 @@ class UlasanController extends Controller
             'data' => $ulasan
         ], 201);
     }
+
+    public function indexUlasanPenyedia(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        $id_penyedia = $request->input('id_penyedia');
+
+        if (!$id_penyedia) {
+            return response()->json([
+                'message' => 'id_penyedia is required.',
+            ], 400);
+        }
+
+        $ulasan = Ulasan::with(['pengguna', 'detailTransaksi.paket.penyediaJasa'])
+            ->whereHas('detailTransaksi.paket', function ($query) use ($id_penyedia) {
+                $query->where('id_penyedia', $id_penyedia);
+            })
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Ulasan retrieved successfully',
+            'data' => $ulasan,
+        ], 200);
+    }
 }
