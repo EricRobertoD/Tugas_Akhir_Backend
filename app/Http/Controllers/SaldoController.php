@@ -335,8 +335,7 @@ class SaldoController extends Controller
 
     public function indexPendingWithdraw()
     {
-        $saldo = Saldo::where('status', 'pending')
-            ->where('jenis', 'withdraw')
+        $saldo = Saldo::where('jenis', 'withdraw')
             ->with(['PenyediaJasa', 'Pengguna'])
             ->get();
 
