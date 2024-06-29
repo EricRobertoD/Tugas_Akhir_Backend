@@ -133,12 +133,15 @@ class SaldoController extends Controller
         }
 
         $total = $request->input('total');
+        $originalTotal = $total;
+        $totalWithExtraCharge = $total * 1.10; 
+    
 
         $saldo = Saldo::create([
             'id_penyedia' => $user->id_penyedia ?? null,
             'id_pengguna' => $user->id_pengguna ?? null,
             'jenis' => 'deposit',
-            'total' => $total,
+            'total' => $originalTotal,
             'status' => 'pending',
             'tanggal' => Carbon::today()->format('Y-m-d'),
         ]);
@@ -155,7 +158,7 @@ class SaldoController extends Controller
         $params = [
             'transaction_details' => [
                 'order_id' => $saldo->id_saldo,
-                'gross_amount' => $total,
+                'gross_amount' => $totalWithExtraCharge, 
             ],
             'customer_details' => [
                 'first_name' => $nama,
