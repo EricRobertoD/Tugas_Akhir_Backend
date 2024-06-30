@@ -134,7 +134,7 @@ class SaldoController extends Controller
 
         $total = $request->input('total');
         $originalTotal = $total;
-        $totalWithExtraCharge = $total * 1.10; 
+        $totalWithExtraCharge = $total * 1.05; 
     
 
         $saldo = Saldo::create([
