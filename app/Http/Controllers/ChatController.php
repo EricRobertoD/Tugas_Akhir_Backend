@@ -207,4 +207,35 @@ class ChatController extends Controller
             'data' => $chat
         ], 201);
     }
+
+    
+    public function storePenyediaFirst(Request $request)
+    {
+        $id_penyedia = auth()->user()->id_penyedia;
+        $validator = Validator::make($request->all(), [
+            'id_pengguna' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $chat = Chat::create([
+            'id_pengguna' => $request->input('id_pengguna'),
+            'id_penyedia' => $id_penyedia,
+            'uid_sender' => $id_penyedia,
+        ]);
+
+        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $id_penyedia))->toOthers();
+        broadcast(new NotifyyFrontend('Message successfully sent', 'channel-' . $chat->id_pengguna))->toOthers();
+
+        return response([
+            'status' => 'success',
+            'message' => 'Chat created successfully',
+            'data' => $chat
+        ], 201);
+    }
 }
