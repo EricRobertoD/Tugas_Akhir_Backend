@@ -85,7 +85,7 @@ Route::delete('paket/{paket}', 'App\Http\Controllers\PaketController@destroy');
 Route::post('chatPenyedia', 'App\Http\Controllers\ChatController@storePenyedia');
 Route::post('isiChatPenyedia', 'App\Http\Controllers\ChatController@chatPenyedia');
 Route::get('listChatPenyedia', 'App\Http\Controllers\ChatController@listPenggunaForPenyedia');
-Route::post('chatPenggunaFirst', 'App\Http\Controllers\ChatController@storePenggunaFirst');
+Route::post('chatPenyediaFirst', 'App\Http\Controllers\ChatController@storePenyediaFirst');
 
 Route::get('saldoPenyedia', 'App\Http\Controllers\SaldoController@indexPenyedia');
 
