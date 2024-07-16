@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
+use Google\Cloud\Storage\StorageClient;
 
 class AuthController extends Controller
 {
@@ -113,6 +114,7 @@ class AuthController extends Controller
             'nomor_whatsapp_penyedia' => 'required',
             'alamat_penyedia' => 'required',
             'nama_role' => 'required',
+            'dokumen' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         ]);
 
         if ($validate->fails()) {
@@ -126,10 +128,55 @@ class AuthController extends Controller
             return response()->json($response, 400);
         }
 
+        $fileNameToStore = 'noimage.jpg';
+        if ($request->hasFile('dokumen')) {
+            $file = $request->file('dokumen');
+            $filenameWithExt = $file->getClientOriginalName();
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+
+            try {
+                $privateKey = str_replace("\\n", "\n", getenv('private_key'));
+                $storage = new StorageClient([
+                    'projectId' => getenv('PROJECT_ID'),
+                    'keyFile' => [
+                        'type' => getenv('type'),
+                        'project_id' => getenv('project_id'),
+                        'private_key_id' => getenv('private_key_id'),
+                        'private_key' => $privateKey,
+                        'client_email' => getenv('client_email'),
+                        'client_id' => getenv('client_id'),
+                        'auth_uri' => getenv('auth_uri'),
+                        'token_uri' => getenv('token_uri'),
+                        'auth_provider_x509_cert_url' => getenv('auth_provider_x509_cert_url'),
+                        'client_x509_cert_url' => getenv('client_x509_cert_url'),
+                        'universe_domain' => getenv('universe_domain'),
+                    ],
+                ]);
+
+                $bucket = $storage->bucket('tugasakhir_11007');
+
+                $fileContents = file_get_contents($file->getPathname());
+
+                $object = $bucket->upload($fileContents, [
+                    'name' => 'dokumen/' . $fileNameToStore
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'File upload failed',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        }
+
         $registerData['minimal_persiapan'] = 0;
         $registerData['password'] = bcrypt($registerData['password']);
+        $registerData['dokumen'] = $fileNameToStore;
 
         $penyedia = PenyediaJasa::create($registerData);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Register Berhasil!.',
