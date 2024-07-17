@@ -29,6 +29,7 @@ class PenyediaJasa extends Authenticatable
         'status_blokir',
         'minimal_persiapan',
         'dokumen',
+        'video',
     ];
 
     protected $hidden = [

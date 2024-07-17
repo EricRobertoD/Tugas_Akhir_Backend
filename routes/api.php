@@ -93,6 +93,8 @@ Route::put('confirmDetailTransaksi/{confirmDetailTransaksi}', 'App\Http\Controll
 Route::put('cancelDetailTransaksi/{cancelDetailTransaksi}', 'App\Http\Controllers\DetailTransaksiController@cancelDetailTransaksi');
 
 Route::put('minimalPersiapan', 'App\Http\Controllers\PenyediaController@updateMinimalPersiapan');
+
+Route::post('uploadVideo', 'App\Http\Controllers\PenyediaController@uploadVideo');
 });
 
 
