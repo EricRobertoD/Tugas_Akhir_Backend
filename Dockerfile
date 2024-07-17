@@ -17,6 +17,9 @@ RUN apt-get update && apt-get install -y \
 # Copy application files
 COPY . .
 
+# Copy the custom php.ini configuration
+COPY php.ini /usr/local/etc/php/
+
 # Install Composer dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-scripts
